@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+websockets
+httpx
+python-dotenv
+numpy
+
+# Machine learning framework (torch is used for model.pt on Python 3.14)
+torch

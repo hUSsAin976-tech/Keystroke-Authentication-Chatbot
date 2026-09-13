@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KeyGuard AI — Continuous Keystroke Biometric Authentication</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090b10;
+      --card-bg: rgba(18, 22, 33, 0.85);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-border-hover: rgba(255, 255, 255, 0.16);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-sub: #64748b;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-glow: rgba(99, 102, 241, 0.35);
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.35);
+      --yellow: #f59e0b;
+      --yellow-glow: rgba(245, 158, 11, 0.35);
+      --red: #ef4444;
+      --red-glow: rgba(239, 68, 68, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #151a2e 0%, #090b10 75%);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 32px 16px 64px;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 1120px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 18px 24px;
+      backdrop-filter: blur(12px);
+    }
+
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .shield-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(16, 185, 129, 0.25));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .shield-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: #38bdf8;
+      stroke-width: 2;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .sub {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .btn-action:hover {
+      background: linear-gradient(135deg, #4338ca, #4f46e5);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .pulse-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+
+      50% {
+        transform: scale(1.25);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+    }
+
+    /* Notification Alert Banner */
+    .alert-banner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      border-radius: 14px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      animation: slideDown 0.3s ease-out;
+      transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Red theme: Unauthorized typist */
+    .alert-banner.alert-banner-red {
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #fca5a5;
+      box-shadow: 0 0 24px rgba(239, 68, 68, 0.22);
+    }
+    .alert-banner.alert-banner-red .alert-banner-tag {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    /* Orange theme: Person changed while typing, but new person is authorized */
+    .alert-banner.alert-banner-orange {
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      color: #fed7aa;
+      box-shadow: 0 0 24px rgba(245, 158, 11, 0.22);
+    }
+    .alert-banner.alert-banner-orange .alert-banner-tag {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .alert-banner-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .btn-danger-outline {
+      background: rgba(239, 68, 68, 0.08);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-danger-outline:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.6);
+      transform: translateY(-1px);
+    }
+    .btn-remove-sm {
+      background: rgba(239, 68, 68, 0.1);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-remove-sm:hover {
+      background: rgba(239, 68, 68, 0.25);
+      color: #fff;
+    }
+
+    /* Workspace Layout */
+    .workspace-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .workspace-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .workspace-main {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: rgba(10, 13, 20, 0.65);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .stat-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-sub);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    /* Textarea */
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      resize: vertical;
+      background: rgba(10, 13, 20, 0.75);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+      font-size: 15px;
+      line-height: 1.6;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    /* Authenticity Meter */
+    .meter-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .meter-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .meter-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 100%;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 14px var(--green-glow);
+      transition: width 0.35s ease, background 0.35s, box-shadow 0.35s;
+    }
+
+    /* Side Panel */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .user-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+      backdrop-filter: blur(12px);
+    }
+
+    .user-card-name {
+      font-size: 20px;
+      font-weight: 800;
+      margin: 8px 0 10px;
+      letter-spacing: -0.01em;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .status-badge.verified {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 14px var(--green-glow);
+    }
+
+    .status-badge.suspicious {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--yellow);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      box-shadow: 0 0 14px var(--yellow-glow);
+    }
+
+    .status-badge.unauthorized {
+      background: rgba(239, 68, 68, 0.18);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      box-shadow: 0 0 16px var(--red-glow);
+    }
+
+    .status-badge.init {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+    }
+
+    /* Score Breakdown */
+    .profiles-section {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .profile-bar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .profile-bar-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .profile-bar-track {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+    }
+
+    .profile-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    /* Activity Log */
+    .activity-log {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      backdrop-filter: blur(12px);
+      max-height: 380px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .activity-log-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-sub);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .log-entry {
+      font-size: 12px;
+      line-height: 1.45;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 3px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(3px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .log-entry.verify {
+      border-left-color: var(--green);
+    }
+
+    .log-entry.suspicious {
+      border-left-color: var(--yellow);
+    }
+
+    .log-entry.unknown,
+    .log-entry.identity_change {
+      border-left-color: var(--red);
+    }
+
+    .log-entry.clipboard {
+      border-left-color: #64748b;
+    }
+
+    .log-time {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      color: var(--text-sub);
+    }
+
+    /* Enrollment Wizard Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(5, 7, 12, 0.88);
+      backdrop-filter: blur(14px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .enroll-card {
+      width: 100%;
+      max-width: 620px;
+      background: #111522;
+      border: 1px solid var(--card-border-hover);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 0 60px rgba(99, 102, 241, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes zoomIn {
+      from {
+        opacity: 0;
+        transform: scale(0.94);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .modal-close:hover {
+      color: #fff;
+    }
+
+    .enroll-progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .enroll-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #10b981);
+      width: 20%;
+      transition: width 0.3s ease;
+    }
+
+    .session-type-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      width: fit-content;
+    }
+
+    .prompt-card {
+      background: rgba(10, 13, 20, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      font-style: italic;
+      border-left: 3px solid var(--accent);
+    }
+
+    .enroll-timer {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--yellow);
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(10, 13, 20, 0.75);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #4338ca, #4f46e5);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .alert-box {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: none;
+    }
+
+    .alert-box.error {
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .alert-box.success {
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <!-- Header -->
+    <header class="header">
+      <div class="title-group">
+        <div class="shield-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </div>
+        <div>
+          <h1>KeyGuard AI</h1>
+          <div class="sub">Continuous Keystroke Biometric Authentication — Autonomous Zero-Login Identity</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-action" id="open-enroll-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Enroll New Profile
+        </button>
+        <button class="btn-danger-outline" id="open-manage-profiles-btn" title="Manage and remove enrolled biometric profiles">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            <line x1="10" y1="11" x2="10" y2="17"></line>
+            <line x1="14" y1="11" x2="14" y2="17"></line>
+          </svg>
+          Remove Profiles
+        </button>
+        <div class="pulse-badge">
+          <div class="pulse-dot" id="socket-dot"></div>
+          <span id="socket-status-text">Connected</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Notification Alert Banner (Appears for 5 sec on identity shift or unauthorized typist) -->
+    <div class="alert-banner alert-banner-red" id="unauthorized-banner" style="display: none;">
+      <div class="alert-banner-icon" id="unauthorized-banner-icon">🚨</div>
+      <div style="flex: 1;">
+        <strong>Security Notice:</strong>
+        <span id="unauthorized-banner-text">Unauthorized typist detected — typing cadence diverges from all registered biometric profiles.</span>
+      </div>
+      <span class="alert-banner-tag" id="unauthorized-banner-timer" style="font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-family: 'JetBrains Mono', monospace;">5s</span>
+    </div>
+
+    <!-- MAIN VIEW: PROTECTED WORKSPACE (Zero-Login by Default) -->
+    <div class="workspace-layout">
+      <div class="workspace-main">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-title">Detected Person</div>
+            <div class="stat-value" id="card-detected-person" style="font-size: 17px; color: var(--accent);">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Match Confidence</div>
+            <div class="stat-value" id="card-confidence" style="color: var(--green);">0%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Windows Analyzed</div>
+            <div class="stat-value" id="card-windows" style="color: var(--accent);">0</div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-size: 13px; font-weight: 600; color: var(--text-muted);">
+              Protected Typing Area (Autonomous Biometric Identity Stream)
+            </label>
+            <span style="font-size: 12px; color: var(--text-sub);">Dwell &bull; Flight &bull; Rhythm &bull;
+              Variability</span>
+          </div>
+          <textarea id="typing-area"
+            placeholder="Type freely here... The AI continuously evaluates your unique keystroke cadence to identify who is typing and verify authorization in real time. (Copy/paste is tracked separately)."></textarea>
+        </div>
+
+        <div class="meter-container">
+          <div class="meter-header">
+            <span style="color: var(--text-muted); font-weight: 600;">Authenticity Index</span>
+            <span class="stat-value" style="font-size: 14px; color: var(--green);" id="meter-value">1.000</span>
+          </div>
+          <div class="meter-track">
+            <div class="meter-fill" id="meter-fill"></div>
+          </div>
+        </div>
+
+        <div class="sub" id="workspace-status" style="font-size: 12px;">
+          Typing stream active — analyzing cadence signatures.
+        </div>
+      </div>
+
+      <!-- Side Panel -->
+      <div class="side-panel">
+        <div class="user-card">
+          <div class="activity-log-title">Active Typist Status</div>
+          <div class="user-card-name" id="side-user-name">Analyzing…</div>
+          <span class="status-badge init" id="side-status-badge">INITIALIZING</span>
+
+          <div style="margin-top: 14px; font-size: 12px; color: var(--text-muted);">
+            Match Confidence: <strong id="side-confidence" style="color: var(--text-main);">—</strong>
+          </div>
+          <div style="margin-top: 4px; font-size: 12px; color: var(--text-muted);">
+            Anomaly Risk: <strong id="side-risk" style="color: var(--text-main);">—</strong>
+          </div>
+          <div style="margin-top: 4px; font-size: 12px; color: var(--text-muted);">
+            Keystrokes Evaluated: <strong id="side-windows" style="color: var(--text-main);">0</strong>
+          </div>
+
+          <!-- Registered Profiles Probability Breakdown -->
+          <div class="profiles-section">
+            <div class="activity-log-title" style="margin-bottom: 8px;">Enrolled Profiles Match</div>
+            <div id="profiles-breakdown-list">
+              <span style="font-size: 12px; color: var(--text-sub);">Waiting for initial typing window…</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="activity-log">
+          <div class="activity-log-title">Live Activity Log</div>
+          <div id="activity-log-entries"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENROLLMENT WIZARD MODAL (5 Distinct Sessions) -->
+  <div class="modal-overlay" id="enroll-modal">
+    <div class="enroll-card">
+      <div class="modal-header">
+        <div>
+          <h2 style="font-size: 18px; margin: 0;">Biometric Profile Registration</h2>
+          <div class="sub" id="enroll-sub-heading">Step 1: Enter your user identifier</div>
+        </div>
+        <button class="modal-close" id="enroll-close-btn">&times;</button>
+      </div>
+
+      <div class="alert-box" id="enroll-alert"></div>
+
+      <!-- Registration Form (User Name) -->
+      <div id="enroll-step-username" style="display: flex; flex-direction: column; gap: 14px;">
+        <div>
+          <label
+            style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+            Full Name or Username
+          </label>
+          <input type="text" id="enroll-username-input" placeholder="e.g. alice, bob, or your name" />
+        </div>
+        <p style="font-size: 12.5px; color: var(--text-sub); line-height: 1.5; margin: 0;">
+          After naming your profile, you will complete 5 guided typing sessions (normal, different text, free, fast, and
+          slow). The AI will train an individual behavioral model for your rhythm.
+        </p>
+        <button class="btn-primary" id="enroll-start-sessions-btn">
+          Start 5-Session Enrollment &rarr;
+        </button>
+      </div>
+
+      <!-- 5-Session Wizard Content -->
+      <div id="enroll-step-wizard" style="display: none; flex-direction: column; gap: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="session-type-badge" id="wizard-session-type">normal</span>
+          <span
+            style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--accent);"
+            id="wizard-session-counter">Session 1 of 5</span>
+        </div>
+
+        <div class="enroll-progress-bar">
+          <div class="enroll-progress-fill" id="wizard-progress-fill"></div>
+        </div>
+
+        <div class="sub" id="wizard-instruction" style="font-size: 13.5px; color: #cbd5e1;">Loading instruction…</div>
+
+        <div id="wizard-prompt-block" style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase;">Reference
+            Paragraph</label>
+          <div class="prompt-card" id="wizard-prompt-text">Loading prompt…</div>
+        </div>
+
+        <div id="wizard-timer-block" style="display: none; align-items: center; gap: 12px;">
+          <span class="sub">Free typing timer:</span>
+          <span class="enroll-timer" id="wizard-timer">0:45</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase;">Your
+            Typing Input</label>
+          <textarea id="wizard-typing-input" style="min-height: 120px;"
+            placeholder="Start typing naturally according to the instruction above… Do not copy-paste."></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="sub" id="wizard-char-counter">0 characters</span>
+          <button class="btn-primary" id="wizard-next-btn" disabled>
+            Submit Session & Next &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANAGE / REMOVE PROFILES MODAL -->
+  <div class="modal-overlay" id="profiles-modal">
+    <div class="enroll-card" style="max-width: 580px;">
+      <div class="modal-header">
+        <div>
+          <h2 style="font-size: 18px; margin: 0;">Registered Biometric Profiles</h2>
+          <div class="sub" id="profiles-modal-sub">View and remove enrolled typist profiles</div>
+        </div>
+        <button class="modal-close" id="profiles-modal-close-btn">&times;</button>
+      </div>
+
+      <div class="alert-box" id="profiles-alert"></div>
+
+      <div id="profiles-modal-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 340px; overflow-y: auto; padding-right: 4px;">
+        <span style="font-size: 12px; color: var(--text-sub);">Loading registered profiles…</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--card-border); padding-top: 14px; margin-top: 6px;">
+        <button class="btn-remove-sm" id="clear-all-profiles-btn" style="background: rgba(239, 68, 68, 0.12); color: #fca5a5; border-color: rgba(239, 68, 68, 0.35); padding: 7px 14px; font-size: 12.5px;">
+          🗑️ Clear All Profiles
+        </button>
+        <button class="btn-secondary" id="profiles-modal-done-btn" style="padding: 7px 18px; font-size: 13px;">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // ---------------------------------------------------------------------------
+      // State
+      // ---------------------------------------------------------------------------
+      let socket = null;
+      let eventBuffer = [];
+      let batchTimer = null;
+      let windowsAnalyzed = 0;
+      let lastKnownConfidence = null;
+      let lastLoggedEventKey = "";
+
+      // Enrollment state
+      let enrollmentSessions = [];
+      let currentEnrollUser = "";
+      let currentEnrollIndex = 0;
+      let enrollEvents = [];
+      let enrollTimerInterval = null;
+      let enrollTimerRemaining = 0;
+
+      const BATCH_MAX_EVENTS = 15;
+      const BATCH_MAX_MS = 1000;
+
+      // ---------------------------------------------------------------------------
+      // DOM Elements
+      // ---------------------------------------------------------------------------
+      const openEnrollBtn = document.getElementById("open-enroll-btn");
+      const enrollModal = document.getElementById("enroll-modal");
+      const enrollCloseBtn = document.getElementById("enroll-close-btn");
+      const enrollAlert = document.getElementById("enroll-alert");
+      const enrollStepUsername = document.getElementById("enroll-step-username");
+      const enrollStepWizard = document.getElementById("enroll-step-wizard");
+      const enrollUsernameInput = document.getElementById("enroll-username-input");
+      const enrollStartSessionsBtn = document.getElementById("enroll-start-sessions-btn");
+      const enrollSubHeading = document.getElementById("enroll-sub-heading");
+
+      const wizardSessionType = document.getElementById("wizard-session-type");
+      const wizardSessionCounter = document.getElementById("wizard-session-counter");
+      const wizardProgressFill = document.getElementById("wizard-progress-fill");
+      const wizardInstruction = document.getElementById("wizard-instruction");
+      const wizardPromptBlock = document.getElementById("wizard-prompt-block");
+      const wizardPromptText = document.getElementById("wizard-prompt-text");
+      const wizardTimerBlock = document.getElementById("wizard-timer-block");
+      const wizardTimerEl = document.getElementById("wizard-timer");
+      const wizardTypingInput = document.getElementById("wizard-typing-input");
+      const wizardCharCounter = document.getElementById("wizard-char-counter");
+      const wizardNextBtn = document.getElementById("wizard-next-btn");
+
+      const unauthorizedBanner = document.getElementById("unauthorized-banner");
+      const unauthorizedBannerText = document.getElementById("unauthorized-banner-text");
+      const workspaceTextarea = document.getElementById("typing-area");
+      const cardDetectedPerson = document.getElementById("card-detected-person");
+      const cardConfidence = document.getElementById("card-confidence");
+      const cardWindows = document.getElementById("card-windows");
+      const meterFill = document.getElementById("meter-fill");
+      const meterValue = document.getElementById("meter-value");
+      const workspaceStatus = document.getElementById("workspace-status");
+
+      const sideUserName = document.getElementById("side-user-name");
+      const sideStatusBadge = document.getElementById("side-status-badge");
+      const sideConfidence = document.getElementById("side-confidence");
+      const sideRisk = document.getElementById("side-risk");
+      const sideWindows = document.getElementById("side-windows");
+      const profilesBreakdownList = document.getElementById("profiles-breakdown-list");
+      const activityLogEl = document.getElementById("activity-log-entries");
+      const socketDot = document.getElementById("socket-dot");
+      const socketStatusText = document.getElementById("socket-status-text");
+
+      // Manage / Remove Profiles Modal Elements
+      const openManageProfilesBtn = document.getElementById("open-manage-profiles-btn");
+      const profilesModal = document.getElementById("profiles-modal");
+      const profilesModalCloseBtn = document.getElementById("profiles-modal-close-btn");
+      const profilesModalDoneBtn = document.getElementById("profiles-modal-done-btn");
+      const profilesModalList = document.getElementById("profiles-modal-list");
+      const profilesAlert = document.getElementById("profiles-alert");
+      const clearAllProfilesBtn = document.getElementById("clear-all-profiles-btn");
+
+      if (openManageProfilesBtn) {
+        openManageProfilesBtn.addEventListener("click", () => {
+          profilesModal.style.display = "flex";
+          if (profilesAlert) profilesAlert.style.display = "none";
+          loadProfilesModal();
+        });
+      }
+
+      if (profilesModalCloseBtn) {
+        profilesModalCloseBtn.addEventListener("click", () => {
+          profilesModal.style.display = "none";
+        });
+      }
+
+      if (profilesModalDoneBtn) {
+        profilesModalDoneBtn.addEventListener("click", () => {
+          profilesModal.style.display = "none";
+        });
+      }
+
+      async function loadProfilesModal() {
+        if (!profilesModalList) return;
+        profilesModalList.innerHTML = '<span style="font-size: 12px; color: var(--text-sub);">Loading registered profiles…</span>';
+        try {
+          const res = await fetch("/api/profiles");
+          const data = await res.json();
+          const profiles = data.profiles || [];
+          if (profiles.length === 0) {
+            profilesModalList.innerHTML = `
+              <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13.5px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px dashed var(--card-border);">
+                No registered profiles found.<br>
+                <span style="font-size: 12px; color: var(--text-sub);">Click "Enroll New Profile" above to register a typing identity.</span>
+              </div>
+            `;
+            return;
+          }
+
+          profilesModalList.innerHTML = "";
+          profiles.forEach(p => {
+            const card = document.createElement("div");
+            card.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px 16px;";
+            card.innerHTML = `
+              <div>
+                <div style="font-weight: 700; font-size: 14px; color: #a5b4fc; display: flex; align-items: center; gap: 8px;">
+                  <span>@${p.username}</span>
+                  <span style="font-size: 10px; font-weight: 600; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3);">Enrolled</span>
+                </div>
+                <div style="font-size: 11.5px; color: var(--text-sub); margin-top: 4px;">
+                  ${p.sessions_count} sessions &bull; dwell: ${p.dwell_mean_ms}ms &bull; flight: ${p.flight_mean_ms}ms
+                </div>
+              </div>
+              <button class="btn-remove-sm" onclick="window.removeSingleProfile('${p.username}')" style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px;">
+                🗑️ Remove Profile
+              </button>
+            `;
+            profilesModalList.appendChild(card);
+          });
+        } catch (err) {
+          profilesModalList.innerHTML = `<span style="font-size: 12px; color: var(--red);">Error loading profiles: ${err.message}</span>`;
+        }
+      }
+
+      window.removeSingleProfile = async function(username) {
+        if (!confirm(`Are you sure you want to remove the registered profile for '@${username}'?`)) return;
+        try {
+          const res = await fetch(`/api/profile/${encodeURIComponent(username)}`, { method: "DELETE" });
+          const data = await res.json();
+          if (res.ok) {
+            showAlert(profilesAlert, `Profile '@${username}' was successfully removed.`, "success");
+            loadProfilesModal();
+            refreshSidebarProfiles();
+          } else {
+            showAlert(profilesAlert, data.detail || "Failed to remove profile.", "error");
+          }
+        } catch (err) {
+          showAlert(profilesAlert, "Network error: " + err.message, "error");
+        }
+      };
+
+      if (clearAllProfilesBtn) {
+        clearAllProfilesBtn.addEventListener("click", async () => {
+          if (!confirm("Are you sure you want to remove ALL registered biometric profiles? This will clear all trained profiles from the system.")) return;
+          try {
+            const res = await fetch("/api/profiles/clear", { method: "POST" });
+            const data = await res.json();
+            if (res.ok) {
+              showAlert(profilesAlert, "All registered profiles have been removed.", "success");
+              loadProfilesModal();
+              profilesBreakdownList.innerHTML = '<span style="font-size: 12px; color: var(--text-sub);">No registered profiles. Click "Enroll New Profile" to register.</span>';
+            } else {
+              showAlert(profilesAlert, data.detail || "Failed to clear profiles.", "error");
+            }
+          } catch (err) {
+            showAlert(profilesAlert, "Network error: " + err.message, "error");
+          }
+        });
+      }
+
+      function refreshSidebarProfiles() {
+        fetch("/api/profiles").then(r => r.json()).then(d => {
+          const list = d.profiles || [];
+          if (list.length === 0) {
+            profilesBreakdownList.innerHTML = '<span style="font-size: 12px; color: var(--text-sub);">No registered profiles. Click "Enroll New Profile" to register.</span>';
+          } else {
+            const dummyScores = {};
+            list.forEach(p => dummyScores[p.username] = 0);
+            renderProfilesBreakdown(dummyScores);
+          }
+        }).catch(() => {});
+      }
+
+      // ---------------------------------------------------------------------------
+      // Enrollment Wizard Handlers
+      // ---------------------------------------------------------------------------
+      openEnrollBtn.addEventListener("click", () => {
+        enrollModal.style.display = "flex";
+        enrollStepUsername.style.display = "flex";
+        enrollStepWizard.style.display = "none";
+        enrollSubHeading.textContent = "Step 1: Enter your user identifier";
+        enrollUsernameInput.value = "";
+        enrollAlert.style.display = "none";
+        enrollUsernameInput.focus();
+      });
+
+      enrollCloseBtn.addEventListener("click", () => {
+        clearEnrollTimer();
+        enrollModal.style.display = "none";
+      });
+
+      function showAlert(el, msg, type) {
+        el.textContent = msg;
+        el.className = "alert-box " + type;
+        el.style.display = "block";
+      }
+
+      enrollStartSessionsBtn.addEventListener("click", async () => {
+        const username = enrollUsernameInput.value.trim().toLowerCase();
+        if (!username || username.length < 3) {
+          showAlert(enrollAlert, "Please enter a valid username (at least 3 characters).", "error");
+          return;
+        }
+
+        enrollStartSessionsBtn.disabled = true;
+        currentEnrollUser = username;
+
+        try {
+          // Register user profile
+          const resp = await fetch("/api/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: username, password: "profile_enrollment_auto_pass" })
+          });
+
+          if (!resp.ok) {
+            const errData = await resp.json().catch(() => ({}));
+            // If already exists, we can still re-enroll or append sessions
+            if (resp.status !== 400 || !String(errData.detail).includes("already exists")) {
+              throw new Error(errData.detail || "Registration failed.");
+            }
+          }
+
+          // Fetch sessions
+          const sResp = await fetch("/api/enroll/prompts");
+          const sData = await sResp.json();
+          enrollmentSessions = sData.sessions || [];
+
+          if (!enrollmentSessions || enrollmentSessions.length === 0) {
+            enrollmentSessions = [
+              { session_index: 1, session_type: "normal", instruction: "Read and type this paragraph at your natural, comfortable pace.", prompt: "Security is not just about a strong password, but the unique natural cadence with which every individual interacts with their keyboard.", mode: "guided" },
+              { session_index: 2, session_type: "different", instruction: "Type this different paragraph at your normal pace.", prompt: "Artificial intelligence analyzes subtle timing differences between key presses to build an invisible shield protecting your personal workspace.", mode: "guided" },
+              { session_index: 3, session_type: "free", instruction: "Type freely about anything for 30–60 seconds. Do not copy-paste.", prompt: "", mode: "free", timer_seconds: 45 },
+              { session_index: 4, session_type: "fast", instruction: "Type this paragraph noticeably faster than usual while staying accurate.", prompt: "Every fingertip motion carries tiny micro-variations that distinguish the genuine authorized user from an imposter or automated script.", mode: "guided" },
+              { session_index: 5, session_type: "slow", instruction: "Type this paragraph slowly and deliberately, pausing between phrases.", prompt: "Confidence in digital identity grows when biometric verification seamlessly confirms your unique rhythm with high statistical precision.", mode: "guided" }
+            ];
+          }
+
+          enrollStepUsername.style.display = "none";
+          enrollStepWizard.style.display = "flex";
+          currentEnrollIndex = 0;
+          showEnrollSession(0);
+        } catch (err) {
+          showAlert(enrollAlert, err.message, "error");
+        } finally {
+          enrollStartSessionsBtn.disabled = false;
+        }
+      });
+
+      function clearEnrollTimer() {
+        if (enrollTimerInterval) {
+          clearInterval(enrollTimerInterval);
+          enrollTimerInterval = null;
+        }
+      }
+
+      function showEnrollSession(idx) {
+        clearEnrollTimer();
+        if (idx >= enrollmentSessions.length) {
+          finishEnrollment();
+          return;
+        }
+
+        currentEnrollIndex = idx;
+        enrollEvents = [];
+        wizardTypingInput.value = "";
+        wizardNextBtn.disabled = true;
+        enrollAlert.style.display = "none";
+
+        const sess = enrollmentSessions[idx];
+        enrollSubHeading.textContent = `Training @${currentEnrollUser}: Session ${idx + 1} of ${enrollmentSessions.length}`;
+        wizardSessionCounter.textContent = `Session ${idx + 1} of ${enrollmentSessions.length}`;
+        wizardSessionType.textContent = sess.session_type || "normal";
+        wizardInstruction.textContent = sess.instruction || "";
+        const pct = ((idx) / enrollmentSessions.length) * 100;
+        wizardProgressFill.style.width = Math.max(pct, 15) + "%";
+
+        const isFree = sess.mode === "free";
+        wizardPromptBlock.style.display = isFree ? "none" : "flex";
+        wizardTimerBlock.style.display = isFree ? "flex" : "none";
+
+        if (isFree) {
+          wizardTypingInput.placeholder = "Type freely about anything for 30–60 seconds. Do not copy-paste.";
+          wizardCharCounter.textContent = "0 characters (min 35 to submit)";
+          enrollTimerRemaining = sess.timer_seconds || 45;
+          wizardTimerEl.textContent = formatTimer(enrollTimerRemaining);
+          enrollTimerInterval = setInterval(() => {
+            enrollTimerRemaining--;
+            wizardTimerEl.textContent = formatTimer(Math.max(enrollTimerRemaining, 0));
+            if (enrollEvents.length >= 35) wizardNextBtn.disabled = false;
+            if (enrollTimerRemaining <= 0) wizardNextBtn.disabled = enrollEvents.length < 20;
+          }, 1000);
+        } else {
+          wizardPromptText.textContent = sess.prompt || "";
+          wizardTypingInput.placeholder = "Type the paragraph naturally. Do not copy-paste.";
+          wizardCharCounter.textContent = `0 / ${(sess.prompt || "").length} characters`;
+        }
+
+        wizardTypingInput.focus();
+      }
+
+      function formatTimer(secs) {
+        const m = Math.floor(secs / 60);
+        const s = secs % 60;
+        return m + ":" + String(s).padStart(2, "0");
+      }
+
+      wizardTypingInput.addEventListener("keydown", (e) => {
+        enrollEvents.push({
+          key: e.key,
+          event_type: "keydown",
+          timestamp: performance.now() + performance.timeOrigin
+        });
+      });
+
+      wizardTypingInput.addEventListener("keyup", (e) => {
+        enrollEvents.push({
+          key: e.key,
+          event_type: "keyup",
+          timestamp: performance.now() + performance.timeOrigin
+        });
+
+        const typed = wizardTypingInput.value;
+        const sess = enrollmentSessions[currentEnrollIndex] || {};
+        if (sess.mode === "free") {
+          wizardCharCounter.textContent = `${typed.length} characters (min 35 to submit)`;
+          if (typed.length >= 35) wizardNextBtn.disabled = false;
+        } else {
+          const target = sess.prompt || "";
+          wizardCharCounter.textContent = `${typed.length} / ${target.length} characters`;
+          if (typed.length >= Math.floor(target.length * 0.7)) wizardNextBtn.disabled = false;
+        }
+      });
+
+      wizardNextBtn.addEventListener("click", async () => {
+        clearEnrollTimer();
+        wizardNextBtn.disabled = true;
+        wizardNextBtn.textContent = "Saving session...";
+
+        const sess = enrollmentSessions[currentEnrollIndex] || {};
+        try {
+          const resp = await fetch("/api/enroll/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: currentEnrollUser,
+              session_index: currentEnrollIndex + 1,
+              session_type: sess.session_type || "normal",
+              events: enrollEvents
+            })
+          });
+
+          const res = await resp.json();
+          if (!resp.ok) throw new Error(res.detail || "Submission failed.");
+
+          if (res.status === "completed" || res.enrolled) {
+            finishEnrollment();
+          } else {
+            showEnrollSession(res.sessions_completed);
+          }
+        } catch (err) {
+          showAlert(enrollAlert, err.message, "error");
+        } finally {
+          wizardNextBtn.textContent = "Submit Session & Next \u2192";
+        }
+      });
+
+      function finishEnrollment() {
+        showAlert(enrollAlert, `Profile completed for @${currentEnrollUser}! The model is trained and immediately active.`, "success");
+        addLogEntry(`Biometric profile enrolled for @${currentEnrollUser} (5 sessions completed)`, "verify", Date.now() / 1000);
+        setTimeout(() => {
+          enrollModal.style.display = "none";
+          workspaceTextarea.focus();
+        }, 1200);
+      }
+
+      // ---------------------------------------------------------------------------
+      // Activity Log & UI Updates
+      // ---------------------------------------------------------------------------
+      function addLogEntry(message, eventType, ts) {
+        const div = document.createElement("div");
+        div.className = "log-entry " + (eventType || "info");
+
+        const time = document.createElement("span");
+        time.className = "log-time";
+        time.textContent = new Date(ts * 1000).toLocaleTimeString();
+        div.appendChild(time);
+
+        let icon = "ℹ️ ";
+        if (eventType === "verify") icon = "🛡️ ";
+        else if (eventType === "suspicious") icon = "⚠️ ";
+        else if (eventType === "identity_change") icon = "👤 ";
+        else if (eventType === "unknown") icon = "🚨 ";
+        else if (eventType === "clipboard") icon = "📋 ";
+
+        const textSpan = document.createElement("span");
+        textSpan.textContent = icon + message;
+        div.appendChild(textSpan);
+
+        activityLogEl.insertBefore(div, activityLogEl.firstChild);
+        while (activityLogEl.children.length > 60) {
+          activityLogEl.removeChild(activityLogEl.lastChild);
+        }
+      }
+
+      function updateSidePanel(state, displayUser, confidence, windows, allScores, isAuthorized) {
+        sideWindows.textContent = String(windows);
+        cardWindows.textContent = String(windows);
+
+        if (typeof confidence === "number") {
+          lastKnownConfidence = confidence;
+          sideConfidence.textContent = (confidence * 100).toFixed(1) + "%";
+          cardConfidence.textContent = (confidence * 100).toFixed(1) + "%";
+          const riskVal = Math.max(0, (1.0 - confidence) * 100);
+          sideRisk.textContent = riskVal.toFixed(1) + "%";
+        }
+
+        // Security notice card helpers (5-second auto-dismissal & color theming)
+        let securityNoticeTimer = null;
+        let securityNoticeInterval = null;
+
+        function hideSecurityNotice() {
+          if (securityNoticeTimer) {
+            clearTimeout(securityNoticeTimer);
+            securityNoticeTimer = null;
+          }
+          if (securityNoticeInterval) {
+            clearInterval(securityNoticeInterval);
+            securityNoticeInterval = null;
+          }
+          if (unauthorizedBanner) unauthorizedBanner.style.display = "none";
+        }
+
+        function showSecurityNotice(isAuthorized, message) {
+          if (securityNoticeTimer) {
+            clearTimeout(securityNoticeTimer);
+            securityNoticeTimer = null;
+          }
+          if (securityNoticeInterval) {
+            clearInterval(securityNoticeInterval);
+            securityNoticeInterval = null;
+          }
+
+          const bannerIcon = document.getElementById("unauthorized-banner-icon");
+          const bannerTimer = document.getElementById("unauthorized-banner-timer");
+
+          // Requirement 2:
+          // If the person changed while typing but is authorized (already registered) -> ORANGE
+          // If the person is unauthorized -> RED
+          if (isAuthorized) {
+            unauthorizedBanner.className = "alert-banner alert-banner-orange";
+            if (bannerIcon) bannerIcon.textContent = "🔄";
+          } else {
+            unauthorizedBanner.className = "alert-banner alert-banner-red";
+            if (bannerIcon) bannerIcon.textContent = "🚨";
+          }
+
+          if (unauthorizedBannerText) unauthorizedBannerText.textContent = message;
+          unauthorizedBanner.style.display = "flex";
+
+          let remaining = 5;
+          if (bannerTimer) bannerTimer.textContent = `${remaining}s`;
+
+          securityNoticeInterval = setInterval(() => {
+            remaining--;
+            if (bannerTimer) bannerTimer.textContent = `${Math.max(remaining, 0)}s`;
+            if (remaining <= 0) {
+              clearInterval(securityNoticeInterval);
+              securityNoticeInterval = null;
+            }
+          }, 1000);
+
+          // Requirement 3:
+          // Security notice does NOT get stuck on main page; shows for 5 sec then turns off
+          securityNoticeTimer = setTimeout(() => {
+            unauthorizedBanner.style.display = "none";
+            securityNoticeTimer = null;
+            if (securityNoticeInterval) {
+              clearInterval(securityNoticeInterval);
+              securityNoticeInterval = null;
+            }
+          }, 5000);
+        }
+
+        // Detected user & badge state
+        if (state === "UNKNOWN" || isAuthorized === false) {
+          sideUserName.textContent = "Unauthorized Typist";
+          sideUserName.style.color = "var(--red)";
+          cardDetectedPerson.textContent = "Unauthorized";
+          cardDetectedPerson.style.color = "var(--red)";
+
+          sideStatusBadge.textContent = "UNAUTHORIZED";
+          sideStatusBadge.className = "status-badge unauthorized";
+
+          // Requirement 2: Unauthorized typist -> RED security notice card
+          // Requirement 3: Shows for 5 sec then turns off
+          showSecurityNotice(false, "Unauthorized typist detected — typing cadence diverges from all registered biometric profiles.");
+        } else if (state === "VERIFIED") {
+          const userStr = displayUser ? `@${displayUser}` : "Verified Typist";
+          sideUserName.textContent = userStr;
+          sideUserName.style.color = "var(--green)";
+          cardDetectedPerson.textContent = userStr;
+          cardDetectedPerson.style.color = "var(--green)";
+
+          sideStatusBadge.textContent = "AUTHORIZED";
+          sideStatusBadge.className = "status-badge verified";
+
+          hideSecurityNotice();
+        } else if (state === "IDENTITY_CHANGED") {
+          const userStr = displayUser ? `@${displayUser}` : "Authorized Typist";
+          sideUserName.textContent = `@${userStr}`;
+          sideUserName.style.color = "#f59e0b";
+          cardDetectedPerson.textContent = `@${userStr}`;
+          cardDetectedPerson.style.color = "#f59e0b";
+
+          sideStatusBadge.textContent = "IDENTITY SHIFT";
+          sideStatusBadge.className = "status-badge suspicious";
+
+          // Requirement 2: Person changed while typing, but new person is authorized -> ORANGE security notice card
+          // Requirement 3: Shows for 5 sec then turns off
+          showSecurityNotice(true, `Typist transition detected — active typist changed to authorized user @${displayUser}.`);
+        } else if (state === "SUSPICIOUS") {
+          const userStr = displayUser ? `@${displayUser}` : "Unknown";
+          sideUserName.textContent = userStr;
+          sideUserName.style.color = "var(--yellow)";
+          cardDetectedPerson.textContent = userStr;
+          cardDetectedPerson.style.color = "var(--yellow)";
+
+          sideStatusBadge.textContent = "SUSPICIOUS";
+          sideStatusBadge.className = "status-badge suspicious";
+
+          // If cadence resembles a registered user -> orange, else red
+          if (displayUser && displayUser !== "unknown" && isAuthorized !== false) {
+            showSecurityNotice(true, `Cadence variance detected — evaluating rhythm (resembles authorized user @${displayUser})…`);
+          } else {
+            showSecurityNotice(false, `Cadence divergence detected — analyzing typist rhythm…`);
+          }
+        } else {
+          sideUserName.textContent = "Analyzing…";
+          sideUserName.style.color = "var(--text-main)";
+          cardDetectedPerson.textContent = "Analyzing…";
+          cardDetectedPerson.style.color = "var(--accent)";
+
+          sideStatusBadge.textContent = "INITIALIZING";
+          sideStatusBadge.className = "status-badge init";
+          hideSecurityNotice();
+        }
+
+        // Render Profiles Breakdown
+        renderProfilesBreakdown(allScores);
+      }
+
+      function renderProfilesBreakdown(allScores) {
+        if (!allScores || Object.keys(allScores).length === 0) return;
+        profilesBreakdownList.innerHTML = "";
+
+        for (const [user, score] of Object.entries(allScores)) {
+          const pct = Math.max(0, Math.min(100, Math.round(score * 100)));
+          const item = document.createElement("div");
+          item.className = "profile-bar-item";
+
+          const header = document.createElement("div");
+          header.className = "profile-bar-header";
+          header.innerHTML = `
+            <span>@${user}</span>
+            <strong>${pct}%</strong>
+          `;
+
+          const track = document.createElement("div");
+          track.className = "profile-bar-track";
+          const fill = document.createElement("div");
+          fill.className = "profile-bar-fill";
+          fill.style.width = pct + "%";
+          if (pct >= 65) fill.style.background = "var(--green)";
+          else if (pct >= 40) fill.style.background = "var(--yellow)";
+          else fill.style.background = "#64748b";
+
+          track.appendChild(fill);
+          item.appendChild(header);
+          item.appendChild(track);
+          profilesBreakdownList.appendChild(item);
+        }
+      }
+
+      function updateMeter(score, confidence) {
+        const pct = Math.max(0, Math.min(1, score)) * 100;
+        meterFill.style.width = pct + "%";
+        meterValue.textContent = score.toFixed(3);
+
+        let color = "var(--green)";
+        let glow = "var(--green-glow)";
+        if (score < 0.40) {
+          color = "var(--red)";
+          glow = "var(--red-glow)";
+        } else if (score < 0.68) {
+          color = "var(--yellow)";
+          glow = "var(--yellow-glow)";
+        }
+        meterFill.style.background = color;
+        meterFill.style.boxShadow = "0 0 16px " + glow;
+        meterValue.style.color = color;
+      }
+
+      // ---------------------------------------------------------------------------
+      // WebSocket Streaming (Open Continuous Identification)
+      // ---------------------------------------------------------------------------
+      function wsUrl() {
+        const host = window.location.host || "127.0.0.1:8000";
+        const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+        return `${proto}//${host}/ws/typing`;
+      }
+
+      function connectSocket() {
+        if (socket) {
+          try { socket.close(); } catch (e) { }
+        }
+
+        socket = new WebSocket(wsUrl());
+
+        socket.onopen = () => {
+          socketDot.style.background = "var(--green)";
+          socketDot.style.boxShadow = "0 0 10px var(--green)";
+          socketStatusText.textContent = "Connected";
+          workspaceStatus.textContent = "AI continuous keystroke authentication active — start typing freely.";
+        };
+
+        socket.onmessage = (event) => {
+          let payload;
+          try { payload = JSON.parse(event.data); } catch (e) { return; }
+          handleServerMessage(payload);
+        };
+
+        socket.onclose = () => {
+          socketDot.style.background = "var(--yellow)";
+          socketDot.style.boxShadow = "0 0 10px var(--yellow)";
+          socketStatusText.textContent = "Reconnecting…";
+          setTimeout(connectSocket, 2500);
+        };
+      }
+
+      function handleServerMessage(payload) {
+        if (typeof payload.score === "number") {
+          updateMeter(payload.score, payload.anomaly_confidence);
+        }
+
+        const ev = payload.auth_event || (payload.type === "auth_event" ? payload : null);
+        if (ev) {
+          handleAuthEvent(ev);
+        }
+      }
+
+      function handleAuthEvent(ev) {
+        const state = ev.state || "INITIALIZING";
+        const conf = ev.confidence;
+        windowsAnalyzed = ev.windows_analyzed || windowsAnalyzed;
+
+        updateSidePanel(
+          state,
+          ev.display_user,
+          conf,
+          windowsAnalyzed,
+          ev.all_scores,
+          ev.is_authorized !== false
+        );
+
+        const eventKey = `${ev.event_type}_${ev.windows_analyzed}_${ev.display_user}_${ev.message}`;
+        if (eventKey !== lastLoggedEventKey) {
+          lastLoggedEventKey = eventKey;
+          addLogEntry(ev.message || state, ev.event_type || state.toLowerCase(), ev.timestamp || Date.now() / 1000);
+        }
+      }
+
+      // ---------------------------------------------------------------------------
+      // Keystroke Capture (Continuous, Never Blocked)
+      // ---------------------------------------------------------------------------
+      function queueEvent(key, eventType) {
+        eventBuffer.push({
+          key: key,
+          event_type: eventType,
+          timestamp: performance.now() + performance.timeOrigin,
+        });
+
+        if (eventBuffer.length >= BATCH_MAX_EVENTS) {
+          flushBuffer();
+          return;
+        }
+        if (!batchTimer) {
+          batchTimer = setTimeout(flushBuffer, BATCH_MAX_MS);
+        }
+      }
+
+      function flushBuffer() {
+        if (batchTimer) {
+          clearTimeout(batchTimer);
+          batchTimer = null;
+        }
+        if (eventBuffer.length === 0) return;
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({ events: eventBuffer }));
+        }
+        eventBuffer = [];
+      }
+
+      workspaceTextarea.addEventListener("keydown", (e) => queueEvent(e.key, "keydown"));
+      workspaceTextarea.addEventListener("keyup", (e) => queueEvent(e.key, "keyup"));
+
+      // Clipboard Monitoring (Isolated from LSTM)
+      workspaceTextarea.addEventListener("paste", (e) => {
+        const text = (e.clipboardData || window.clipboardData).getData("text") || "";
+        sendClipboard("paste", text.length);
+      });
+      workspaceTextarea.addEventListener("copy", () => {
+        const len = workspaceTextarea.value.substring(
+          workspaceTextarea.selectionStart,
+          workspaceTextarea.selectionEnd
+        ).length;
+        sendClipboard("copy", len);
+      });
+      workspaceTextarea.addEventListener("cut", () => {
+        const len = workspaceTextarea.value.substring(
+          workspaceTextarea.selectionStart,
+          workspaceTextarea.selectionEnd
+        ).length;
+        sendClipboard("cut", len);
+      });
+
+      function sendClipboard(type, charCount) {
+        if (!socket || socket.readyState !== WebSocket.OPEN) return;
+        socket.send(JSON.stringify({
+          type: "clipboard",
+          clip: { type: type, char_count: charCount }
+        }));
+      }
+
+      // Start socket connection and load profiles immediately on load
+      connectSocket();
+      refreshSidebarProfiles();
+      workspaceTextarea.focus();
+    })();
+  </script>
+</body>
+
+</html>
