@@ -32,6 +32,7 @@ from users import (
     delete_user_profile,
     delete_all_profiles,
     get_registered_profiles,
+    reset_enrollment,
 )
 
 load_dotenv()
@@ -43,7 +44,7 @@ GEMINI_URL = (
     f"{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
 )
 
-WINDOW_SIZE = int(os.environ.get("WINDOW_SIZE", "40"))
+WINDOW_SIZE = int(os.environ.get("WINDOW_SIZE", "20"))
 
 app = FastAPI(title="KeyGuard AI")
 
@@ -222,6 +223,16 @@ async def api_register(req: UserAuthRequest):
         user = register_user(req.username, req.password)
         return {"status": "ok", "user": user}
     except ValueError as e:
+        if "already exists" in str(e).lower():
+            reset_enrollment(req.username)
+            return {
+                "status": "ok",
+                "user": {
+                    "username": req.username.strip().lower(),
+                    "enrolled": False,
+                    "sessions_completed": 0,
+                },
+            }
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -240,6 +251,15 @@ async def api_enroll_prompts():
         "prompts": [s["prompt"] for s in ENROLLMENT_SESSIONS if s.get("prompt")],
         "required_sessions": len(ENROLLMENT_SESSIONS),
     }
+
+
+@app.post("/api/enroll/reset")
+async def api_enroll_reset(req: dict):
+    username = (req.get("username") or "").strip().lower()
+    if not username:
+        raise HTTPException(status_code=400, detail="Username is required.")
+    reset_enrollment(username)
+    return {"status": "ok", "message": f"Enrollment reset for {username}"}
 
 
 def _trigger_background_training(epochs: int = 35):
@@ -269,15 +289,30 @@ async def api_enroll_submit(req: EnrollSubmitRequest):
             session_type=req.session_type,
         )
         if count >= len(ENROLLMENT_SESSIONS):
-            sessions = get_enrollment_sessions(req.username)
-            profile = learn_user_profile(req.username, sessions)
-            invalidate_model_cache()
-            _trigger_background_training(epochs=35)
+            # Run the heavy profile learning + training in background
+            # so the HTTP response returns immediately (prevents "failed to fetch")
+            def _background_finalize(username):
+                try:
+                    sessions = get_enrollment_sessions(username)
+                    learn_user_profile(username, sessions)
+                    invalidate_model_cache()
+                    from train import train
+                    print(f"[KeyGuard AI] Background retraining triggered for 35 epochs...")
+                    train(epochs=35)
+                    invalidate_model_cache()
+                    print("[KeyGuard AI] Background retraining completed successfully.")
+                except Exception as e:
+                    import traceback
+                    tb = traceback.format_exc()
+                    print(f"[KeyGuard AI] ERROR in background finalization: {e}\n{tb}", flush=True)
+
+            import threading
+            threading.Thread(target=_background_finalize, args=(req.username,), daemon=True).start()
             return {
                 "status": "completed",
                 "sessions_completed": count,
                 "enrolled": True,
-                "profile": profile,
+                "profile": {},
             }
         return {
             "status": "in_progress",
@@ -352,6 +387,10 @@ async def typing_socket(websocket: WebSocket):
     event_buffer: list[dict] = []
     recent_scores: deque = deque(maxlen=10)
     engine = make_engine(enrolled_username=active_username)
+    last_eval_kd_count = 0
+
+    MIN_ANALYSIS_KEYSTROKES = int(os.environ.get("MIN_ANALYSIS_KEYSTROKES", "8"))
+    STRIDE = int(os.environ.get("STRIDE", "4"))
 
     async def push(event: dict):
         await websocket.send_text(json.dumps(event))
@@ -382,7 +421,7 @@ async def typing_socket(websocket: WebSocket):
 
             kd_events = [e for e in event_buffer if e.get("event_type") == "keydown"]
 
-            if len(kd_events) >= SEQUENCE_LENGTH:
+            if len(kd_events) >= MIN_ANALYSIS_KEYSTROKES and (len(kd_events) - last_eval_kd_count) >= STRIDE:
                 window_kd = kd_events[-SEQUENCE_LENGTH:]
                 window_events = list(window_kd)
                 used_keyup_ids = set()
@@ -414,12 +453,15 @@ async def typing_socket(websocket: WebSocket):
                 if result.get("auth_event"):
                     await push({"type": "auth_event", **result["auth_event"]})
 
-                # Slide window by stride
-                STRIDE = 15
+                last_eval_kd_count = len(kd_events)
+
+                # Slide window when buffer exceeds SEQUENCE_LENGTH + STRIDE
                 if len(kd_events) >= SEQUENCE_LENGTH + STRIDE:
-                    cut_kd = kd_events[-SEQUENCE_LENGTH + STRIDE]
+                    cut_kd = kd_events[-SEQUENCE_LENGTH]
                     cut_idx = next((i for i, e in enumerate(event_buffer) if e is cut_kd), 0)
                     event_buffer = event_buffer[cut_idx:]
+                    kd_events = [e for e in event_buffer if e.get("event_type") == "keydown"]
+                    last_eval_kd_count = len(kd_events)
 
     except WebSocketDisconnect:
         pass

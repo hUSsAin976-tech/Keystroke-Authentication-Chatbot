@@ -63,7 +63,7 @@ def _build_dataset(all_data: dict[str, list[dict]], augment: bool = True) -> tup
             if not events:
                 continue
 
-            seqs = list(build_sequences([events], sequence_length=SEQUENCE_LENGTH, overlap=35))
+            seqs = list(build_sequences([events], sequence_length=SEQUENCE_LENGTH, overlap=15))
             if not seqs:
                 continue
 
@@ -122,7 +122,7 @@ def _build_dataset(all_data: dict[str, list[dict]], augment: bool = True) -> tup
 
     for dwell, flight, noise in impostor_profiles:
         evts = _make_events(test_prompt * 2, dwell, flight, noise)
-        seqs = build_sequences([evts], sequence_length=SEQUENCE_LENGTH, overlap=35)
+        seqs = build_sequences([evts], sequence_length=SEQUENCE_LENGTH, overlap=15)
         for seq in seqs:
             test_x.append(seq)
             test_y.append("unknown")

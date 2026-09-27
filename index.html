@@ -974,8 +974,18 @@
       let enrollTimerInterval = null;
       let enrollTimerRemaining = 0;
 
-      const BATCH_MAX_EVENTS = 15;
-      const BATCH_MAX_MS = 1000;
+      const BATCH_MAX_EVENTS = 6;
+      const BATCH_MAX_MS = 200;
+
+      function getApiBase() {
+        if (window.location.protocol === "file:") {
+          return "http://127.0.0.1:8000";
+        }
+        if (window.location.port && window.location.port !== "8000") {
+          return `${window.location.protocol}//${window.location.hostname || "127.0.0.1"}:8000`;
+        }
+        return "";
+      }
 
       // ---------------------------------------------------------------------------
       // DOM Elements
@@ -1055,7 +1065,7 @@
         if (!profilesModalList) return;
         profilesModalList.innerHTML = '<span style="font-size: 12px; color: var(--text-sub);">Loading registered profiles…</span>';
         try {
-          const res = await fetch("/api/profiles");
+          const res = await fetch(getApiBase() + "/api/profiles");
           const data = await res.json();
           const profiles = data.profiles || [];
           if (profiles.length === 0) {
@@ -1096,7 +1106,7 @@
       window.removeSingleProfile = async function(username) {
         if (!confirm(`Are you sure you want to remove the registered profile for '@${username}'?`)) return;
         try {
-          const res = await fetch(`/api/profile/${encodeURIComponent(username)}`, { method: "DELETE" });
+          const res = await fetch(getApiBase() + `/api/profile/${encodeURIComponent(username)}`, { method: "DELETE" });
           const data = await res.json();
           if (res.ok) {
             showAlert(profilesAlert, `Profile '@${username}' was successfully removed.`, "success");
@@ -1114,7 +1124,7 @@
         clearAllProfilesBtn.addEventListener("click", async () => {
           if (!confirm("Are you sure you want to remove ALL registered biometric profiles? This will clear all trained profiles from the system.")) return;
           try {
-            const res = await fetch("/api/profiles/clear", { method: "POST" });
+            const res = await fetch(getApiBase() + "/api/profiles/clear", { method: "POST" });
             const data = await res.json();
             if (res.ok) {
               showAlert(profilesAlert, "All registered profiles have been removed.", "success");
@@ -1130,7 +1140,7 @@
       }
 
       function refreshSidebarProfiles() {
-        fetch("/api/profiles").then(r => r.json()).then(d => {
+        fetch(getApiBase() + "/api/profiles").then(r => r.json()).then(d => {
           const list = d.profiles || [];
           if (list.length === 0) {
             profilesBreakdownList.innerHTML = '<span style="font-size: 12px; color: var(--text-sub);">No registered profiles. Click "Enroll New Profile" to register.</span>';
@@ -1177,8 +1187,8 @@
         currentEnrollUser = username;
 
         try {
-          // Register user profile
-          const resp = await fetch("/api/register", {
+          // Register or reset user profile for enrollment
+          const resp = await fetch(getApiBase() + "/api/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username: username, password: "profile_enrollment_auto_pass" })
@@ -1186,16 +1196,22 @@
 
           if (!resp.ok) {
             const errData = await resp.json().catch(() => ({}));
-            // If already exists, we can still re-enroll or append sessions
+            // If already exists, we can still re-enroll
             if (resp.status !== 400 || !String(errData.detail).includes("already exists")) {
               throw new Error(errData.detail || "Registration failed.");
             }
           }
 
           // Fetch sessions
-          const sResp = await fetch("/api/enroll/prompts");
-          const sData = await sResp.json();
-          enrollmentSessions = sData.sessions || [];
+          try {
+            const sResp = await fetch(getApiBase() + "/api/enroll/prompts");
+            if (sResp.ok) {
+              const sData = await sResp.json();
+              enrollmentSessions = sData.sessions || [];
+            }
+          } catch (e) {
+            console.warn("Could not fetch remote prompts, using defaults:", e);
+          }
 
           if (!enrollmentSessions || enrollmentSessions.length === 0) {
             enrollmentSessions = [
@@ -1212,7 +1228,10 @@
           currentEnrollIndex = 0;
           showEnrollSession(0);
         } catch (err) {
-          showAlert(enrollAlert, err.message, "error");
+          const msg = (err && err.message && !err.message.includes("Failed to fetch"))
+            ? err.message
+            : "Could not connect to KeyGuard AI backend server (http://127.0.0.1:8000). Please check that the server is running.";
+          showAlert(enrollAlert, msg, "error");
         } finally {
           enrollStartSessionsBtn.disabled = false;
         }
@@ -1309,10 +1328,13 @@
         wizardNextBtn.textContent = "Saving session...";
 
         const sess = enrollmentSessions[currentEnrollIndex] || {};
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
         try {
-          const resp = await fetch("/api/enroll/submit", {
+          const resp = await fetch(getApiBase() + "/api/enroll/submit", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
             body: JSON.stringify({
               username: currentEnrollUser,
               session_index: currentEnrollIndex + 1,
@@ -1320,17 +1342,24 @@
               events: enrollEvents
             })
           });
+          clearTimeout(timeoutId);
 
           const res = await resp.json();
           if (!resp.ok) throw new Error(res.detail || "Submission failed.");
 
-          if (res.status === "completed" || res.enrolled) {
+          const nextIndex = currentEnrollIndex + 1;
+          if (res.status === "completed" || res.enrolled || nextIndex >= enrollmentSessions.length) {
             finishEnrollment();
           } else {
-            showEnrollSession(res.sessions_completed);
+            showEnrollSession(nextIndex);
           }
         } catch (err) {
-          showAlert(enrollAlert, err.message, "error");
+          clearTimeout(timeoutId);
+          if (err.name === 'AbortError') {
+            showAlert(enrollAlert, "Request timed out. Please try again.", "error");
+          } else {
+            showAlert(enrollAlert, err.message || "Failed to fetch. Check server connection.", "error");
+          }
         } finally {
           wizardNextBtn.textContent = "Submit Session & Next \u2192";
         }
@@ -1339,10 +1368,11 @@
       function finishEnrollment() {
         showAlert(enrollAlert, `Profile completed for @${currentEnrollUser}! The model is trained and immediately active.`, "success");
         addLogEntry(`Biometric profile enrolled for @${currentEnrollUser} (5 sessions completed)`, "verify", Date.now() / 1000);
+        refreshSidebarProfiles();
         setTimeout(() => {
           enrollModal.style.display = "none";
           workspaceTextarea.focus();
-        }, 1200);
+        }, 1500);
       }
 
       // ---------------------------------------------------------------------------
@@ -1576,8 +1606,12 @@
       // WebSocket Streaming (Open Continuous Identification)
       // ---------------------------------------------------------------------------
       function wsUrl() {
-        const host = window.location.host || "127.0.0.1:8000";
-        const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+        let host = window.location.host;
+        let proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+        if (window.location.protocol === "file:" || !host || (window.location.port && window.location.port !== "8000")) {
+          host = `${window.location.hostname || "127.0.0.1"}:8000`;
+          proto = "ws:";
+        }
         return `${proto}//${host}/ws/typing`;
       }
 

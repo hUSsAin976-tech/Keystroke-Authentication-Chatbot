@@ -190,9 +190,23 @@ def save_enrollment_session(
         db = _load_db()
         user = db.get(username)
         if not user:
-            raise ValueError(f"User '{username}' not found.")
+            hashed, salt = _hash_password("profile_enrollment_auto_pass")
+            user = {
+                "username": username,
+                "password_hash": hashed,
+                "salt": salt,
+                "enrolled": False,
+                "enrollment_sessions": [],
+                "profile": None,
+                "scaler": None,
+            }
+            db[username] = user
 
         sessions = user.setdefault("enrollment_sessions", [])
+        if session_index == 1:
+            sessions.clear()
+            user["enrolled"] = False
+
         sessions.append({
             "session_index": session_index,
             "session_type": session_type,

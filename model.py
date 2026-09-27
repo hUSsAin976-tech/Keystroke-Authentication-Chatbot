@@ -33,17 +33,17 @@ a behavioral trait that is largely independent of raw typing speed.
 ─────────────────────────────────────────────────────────────────
 SEQUENCE FORMAT
 ─────────────────────────────────────────────────────────────────
-  Shape: (SEQUENCE_LENGTH, FEATURE_DIM) = (50, 6)
+  Shape: (SEQUENCE_LENGTH, FEATURE_DIM) = (25, 6)
   Shorter sequences are zero-padded at the front.
   Longer sequences keep the most recent 50 rows.
 
   Sliding window (for training / continuous inference):
-    stride = SEQUENCE_LENGTH − OVERLAP  (default: 25 keystrokes)
+    stride = SEQUENCE_LENGTH − OVERLAP  (default: 15 keystrokes)
 
 ─────────────────────────────────────────────────────────────────
 MULTI-USER LSTM
 ─────────────────────────────────────────────────────────────────
-  Input  : (batch, 50, 6)
+  Input  : (batch, 25, 6)
   LSTM   : 2 layers, 128 hidden units, dropout 0.35
   Output : (batch, num_enrolled_users)  → softmax
   Rejection gate: if max(softmax) < UNKNOWN_REJECTION_THRESHOLD → "unknown"
@@ -74,7 +74,7 @@ import numpy as np
 # Constants
 # ---------------------------------------------------------------------------
 
-SEQUENCE_LENGTH = 50          # keystrokes per window
+SEQUENCE_LENGTH = 25          # keystrokes per window
 FEATURE_DIM     = 6           # features per keystroke
 PAUSE_THRESHOLD = 0.80        # seconds: flight time above this is a "pause"
 RHYTHM_WINDOW   = 5           # number of recent dwell times used for rolling std
@@ -193,7 +193,7 @@ def extract_features(keystroke_events: list[dict]) -> np.ndarray:
 def build_sequences(
     sessions_events: list[list[dict]],
     sequence_length: int = SEQUENCE_LENGTH,
-    overlap: int = 35,
+    overlap: int = 15,
 ) -> np.ndarray:
     """
     Build sliding-window sequences from multiple sessions of raw events.
