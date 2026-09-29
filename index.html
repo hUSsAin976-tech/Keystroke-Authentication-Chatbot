@@ -12,22 +12,29 @@
     rel="stylesheet">
   <style>
     :root {
-      --bg: #090b10;
-      --card-bg: rgba(18, 22, 33, 0.85);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --card-border-hover: rgba(255, 255, 255, 0.16);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --text-sub: #64748b;
-      --accent: #6366f1;
-      --accent-hover: #4f46e5;
-      --accent-glow: rgba(99, 102, 241, 0.35);
-      --green: #10b981;
-      --green-glow: rgba(16, 185, 129, 0.35);
-      --yellow: #f59e0b;
-      --yellow-glow: rgba(245, 158, 11, 0.35);
-      --red: #ef4444;
-      --red-glow: rgba(239, 68, 68, 0.45);
+      /* === Color Palette ===
+         60% #f8fafc  — page & surface backgrounds
+         30% #0e0a61  — primary navy for text, accent, branding
+         10% #090b10  — near-black for borders, micro-accents
+      */
+      --bg: #095db0;
+      --bg-alt: #eef1f7;
+      --card-bg: #ffffff;
+      --card-border: rgba(14, 10, 97, 0.12);
+      --card-border-hover: rgba(14, 10, 97, 0.25);
+      --text-main: #0e0a61;
+      --text-muted: #3b3a7a;
+      --text-sub: #6b6a9e;
+      --accent: #0e0a61;
+      --accent-hover: #1a158a;
+      --accent-light: rgba(14, 10, 97, 0.08);
+      --accent-mid: rgba(14, 10, 97, 0.18);
+      --green: #059669;
+      --green-light: rgba(5, 150, 105, 0.12);
+      --yellow: #b45309;
+      --yellow-light: rgba(180, 83, 9, 0.12);
+      --red: #dc2626;
+      --red-light: rgba(220, 38, 38, 0.10);
     }
 
     * {
@@ -38,7 +45,7 @@
       margin: 0;
       min-height: 100vh;
       font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
-      background: radial-gradient(circle at 50% 0%, #151a2e 0%, #090b10 75%);
+      background: linear-gradient(160deg, #071553 50%, #fcf8f8 50%, #071553 100%);
       color: var(--text-main);
       display: flex;
       justify-content: center;
@@ -63,7 +70,7 @@
       border: 1px solid var(--card-border);
       border-radius: 16px;
       padding: 18px 24px;
-      backdrop-filter: blur(12px);
+      box-shadow: 0 2px 12px rgba(14, 10, 97, 0.07);
     }
 
     .title-group {
@@ -76,19 +83,19 @@
       width: 44px;
       height: 44px;
       border-radius: 12px;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(16, 185, 129, 0.25));
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: linear-gradient(135deg, #0e0a61, #2b26a0);
+      border: 1px solid rgba(14, 10, 97, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 20px var(--accent-glow);
+      box-shadow: 0 4px 12px rgba(14, 10, 97, 0.25);
     }
 
     .shield-icon svg {
       width: 24px;
       height: 24px;
       fill: none;
-      stroke: #38bdf8;
+      stroke: #f8fafc;
       stroke-width: 2;
     }
 
@@ -97,6 +104,7 @@
       font-size: 20px;
       font-weight: 800;
       letter-spacing: -0.02em;
+      color: var(--text-main);
     }
 
     .sub {
@@ -112,9 +120,9 @@
     }
 
     .btn-action {
-      background: linear-gradient(135deg, #4f46e5, #6366f1);
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: linear-gradient(135deg, #0e0a61, #1d19a3);
+      color: #f8fafc;
+      border: 1px solid rgba(14, 10, 97, 0.3);
       border-radius: 10px;
       padding: 9px 16px;
       font-size: 13px;
@@ -124,16 +132,17 @@
       align-items: center;
       gap: 6px;
       transition: all 0.2s ease;
-      box-shadow: 0 0 16px var(--accent-glow);
+      box-shadow: 0 2px 8px rgba(14, 10, 97, 0.22);
     }
 
     .btn-action:hover {
-      background: linear-gradient(135deg, #4338ca, #4f46e5);
+      background: linear-gradient(135deg, #1a158a, #2522c2);
       transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(14, 10, 97, 0.30);
     }
 
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--bg-alt);
       color: var(--text-main);
       border: 1px solid var(--card-border);
       border-radius: 10px;
@@ -145,7 +154,8 @@
     }
 
     .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: #e2e6f5;
+      border-color: var(--card-border-hover);
     }
 
     .pulse-badge {
@@ -153,11 +163,12 @@
       align-items: center;
       gap: 8px;
       padding: 6px 12px;
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--bg-alt);
       border: 1px solid var(--card-border);
       border-radius: 999px;
       font-size: 12px;
       font-weight: 600;
+      color: var(--text-muted);
     }
 
     .pulse-dot {
@@ -165,7 +176,6 @@
       height: 8px;
       border-radius: 50%;
       background: var(--green);
-      box-shadow: 0 0 10px var(--green);
       animation: pulse 2s infinite;
     }
 
@@ -196,33 +206,33 @@
       font-size: 13.5px;
       line-height: 1.5;
       animation: slideDown 0.3s ease-out;
-      transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+      transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     }
 
     /* Red theme: Unauthorized typist */
     .alert-banner.alert-banner-red {
-      background: rgba(239, 68, 68, 0.14);
-      border: 1px solid rgba(239, 68, 68, 0.45);
-      color: #fca5a5;
-      box-shadow: 0 0 24px rgba(239, 68, 68, 0.22);
+      background: rgba(220, 38, 38, 0.08);
+      border: 1px solid rgba(220, 38, 38, 0.30);
+      color: #991b1b;
     }
+
     .alert-banner.alert-banner-red .alert-banner-tag {
-      background: rgba(239, 68, 68, 0.2);
-      color: #ef4444;
-      border: 1px solid rgba(239, 68, 68, 0.35);
+      background: rgba(220, 38, 38, 0.12);
+      color: #dc2626;
+      border: 1px solid rgba(220, 38, 38, 0.25);
     }
 
     /* Orange theme: Person changed while typing, but new person is authorized */
     .alert-banner.alert-banner-orange {
-      background: rgba(245, 158, 11, 0.14);
-      border: 1px solid rgba(245, 158, 11, 0.45);
-      color: #fed7aa;
-      box-shadow: 0 0 24px rgba(245, 158, 11, 0.22);
+      background: rgba(180, 83, 9, 0.08);
+      border: 1px solid rgba(180, 83, 9, 0.30);
+      color: #92400e;
     }
+
     .alert-banner.alert-banner-orange .alert-banner-tag {
-      background: rgba(245, 158, 11, 0.2);
-      color: #f59e0b;
-      border: 1px solid rgba(245, 158, 11, 0.35);
+      background: rgba(180, 83, 9, 0.12);
+      color: #b45309;
+      border: 1px solid rgba(180, 83, 9, 0.25);
     }
 
     @keyframes slideDown {
@@ -243,9 +253,9 @@
     }
 
     .btn-danger-outline {
-      background: rgba(239, 68, 68, 0.08);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.35);
+      background: rgba(220, 38, 38, 0.07);
+      color: #dc2626;
+      border: 1px solid rgba(220, 38, 38, 0.28);
       border-radius: 10px;
       padding: 9px 14px;
       font-size: 13px;
@@ -256,15 +266,17 @@
       gap: 6px;
       transition: all 0.2s;
     }
+
     .btn-danger-outline:hover {
-      background: rgba(239, 68, 68, 0.2);
-      border-color: rgba(239, 68, 68, 0.6);
+      background: rgba(220, 38, 38, 0.14);
+      border-color: rgba(220, 38, 38, 0.45);
       transform: translateY(-1px);
     }
+
     .btn-remove-sm {
-      background: rgba(239, 68, 68, 0.1);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.25);
+      background: rgba(220, 38, 38, 0.07);
+      color: #dc2626;
+      border: 1px solid rgba(220, 38, 38, 0.22);
       border-radius: 6px;
       padding: 4px 10px;
       font-size: 11.5px;
@@ -272,9 +284,10 @@
       cursor: pointer;
       transition: all 0.15s;
     }
+
     .btn-remove-sm:hover {
-      background: rgba(239, 68, 68, 0.25);
-      color: #fff;
+      background: rgba(220, 38, 38, 0.16);
+      color: #991b1b;
     }
 
     /* Workspace Layout */
@@ -299,7 +312,7 @@
       border: 1px solid var(--card-border);
       border-radius: 16px;
       padding: 24px;
-      backdrop-filter: blur(12px);
+      box-shadow: 0 2px 12px rgba(14, 10, 97, 0.07);
     }
 
     /* Stats Grid */
@@ -310,7 +323,7 @@
     }
 
     .stat-card {
-      background: rgba(10, 13, 20, 0.65);
+      background: var(--bg-alt);
       border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 14px;
@@ -336,7 +349,7 @@
       width: 100%;
       min-height: 220px;
       resize: vertical;
-      background: rgba(10, 13, 20, 0.75);
+      background: var(--bg-alt);
       color: var(--text-main);
       border: 1px solid var(--card-border);
       border-radius: 12px;
@@ -350,7 +363,11 @@
 
     textarea:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
+      box-shadow: 0 0 0 3px var(--accent-mid);
+    }
+
+    textarea::placeholder {
+      color: var(--text-sub);
     }
 
     /* Authenticity Meter */
@@ -370,7 +387,7 @@
       width: 100%;
       height: 10px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(14, 10, 97, 0.08);
       overflow: hidden;
     }
 
@@ -379,8 +396,7 @@
       width: 100%;
       border-radius: 999px;
       background: var(--green);
-      box-shadow: 0 0 14px var(--green-glow);
-      transition: width 0.35s ease, background 0.35s, box-shadow 0.35s;
+      transition: width 0.35s ease, background 0.35s;
     }
 
     /* Side Panel */
@@ -395,7 +411,7 @@
       border: 1px solid var(--card-border);
       border-radius: 16px;
       padding: 20px;
-      backdrop-filter: blur(12px);
+      box-shadow: 0 2px 12px rgba(14, 10, 97, 0.07);
     }
 
     .user-card-name {
@@ -403,6 +419,7 @@
       font-weight: 800;
       margin: 8px 0 10px;
       letter-spacing: -0.01em;
+      color: var(--text-main);
     }
 
     .status-badge {
@@ -418,30 +435,27 @@
     }
 
     .status-badge.verified {
-      background: rgba(16, 185, 129, 0.15);
+      background: var(--green-light);
       color: var(--green);
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      box-shadow: 0 0 14px var(--green-glow);
+      border: 1px solid rgba(5, 150, 105, 0.3);
     }
 
     .status-badge.suspicious {
-      background: rgba(245, 158, 11, 0.15);
+      background: var(--yellow-light);
       color: var(--yellow);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      box-shadow: 0 0 14px var(--yellow-glow);
+      border: 1px solid rgba(180, 83, 9, 0.3);
     }
 
     .status-badge.unauthorized {
-      background: rgba(239, 68, 68, 0.18);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.45);
-      box-shadow: 0 0 16px var(--red-glow);
+      background: var(--red-light);
+      color: var(--red);
+      border: 1px solid rgba(220, 38, 38, 0.3);
     }
 
     .status-badge.init {
-      background: rgba(99, 102, 241, 0.15);
+      background: var(--accent-light);
       color: var(--accent);
-      border: 1px solid rgba(99, 102, 241, 0.35);
+      border: 1px solid var(--card-border);
     }
 
     /* Score Breakdown */
@@ -469,7 +483,7 @@
       width: 100%;
       height: 6px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(14, 10, 97, 0.08);
       overflow: hidden;
     }
 
@@ -486,7 +500,7 @@
       border: 1px solid var(--card-border);
       border-radius: 16px;
       padding: 16px;
-      backdrop-filter: blur(12px);
+      box-shadow: 0 2px 12px rgba(14, 10, 97, 0.07);
       max-height: 380px;
       overflow-y: auto;
       display: flex;
@@ -508,12 +522,13 @@
       line-height: 1.45;
       padding: 8px 12px;
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--bg-alt);
       border-left: 3px solid var(--card-border);
       display: flex;
       flex-direction: column;
       gap: 2px;
       animation: fadeIn 0.25s ease-out;
+      color: var(--text-muted);
     }
 
     @keyframes fadeIn {
@@ -542,7 +557,7 @@
     }
 
     .log-entry.clipboard {
-      border-left-color: #64748b;
+      border-left-color: var(--text-sub);
     }
 
     .log-time {
@@ -558,8 +573,8 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(5, 7, 12, 0.88);
-      backdrop-filter: blur(14px);
+      background: rgba(9, 11, 16, 0.55);
+      backdrop-filter: blur(8px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -570,15 +585,16 @@
     .enroll-card {
       width: 100%;
       max-width: 620px;
-      background: #111522;
+      background: var(--card-bg);
       border: 1px solid var(--card-border-hover);
       border-radius: 20px;
       padding: 28px;
-      box-shadow: 0 0 60px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 8px 40px rgba(14, 10, 97, 0.18);
       display: flex;
       flex-direction: column;
       gap: 16px;
       animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      color: var(--text-main);
     }
 
     @keyframes zoomIn {
@@ -600,28 +616,36 @@
     }
 
     .modal-close {
-      background: transparent;
-      border: none;
+      background: var(--bg-alt);
+      border: 1px solid var(--card-border);
       color: var(--text-muted);
       font-size: 20px;
       cursor: pointer;
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
     }
 
     .modal-close:hover {
-      color: #fff;
+      background: #e2e6f5;
+      color: var(--text-main);
     }
 
     .enroll-progress-bar {
       width: 100%;
       height: 6px;
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(14, 10, 97, 0.08);
       border-radius: 999px;
       overflow: hidden;
     }
 
     .enroll-progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #6366f1, #10b981);
+      background: linear-gradient(90deg, #0e0a61, #059669);
       width: 20%;
       transition: width 0.3s ease;
     }
@@ -634,20 +658,20 @@
       letter-spacing: 0.08em;
       padding: 3px 8px;
       border-radius: 6px;
-      background: rgba(99, 102, 241, 0.15);
-      color: #a5b4fc;
-      border: 1px solid rgba(99, 102, 241, 0.3);
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid var(--card-border);
       width: fit-content;
     }
 
     .prompt-card {
-      background: rgba(10, 13, 20, 0.7);
+      background: var(--bg-alt);
       border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 14px;
       font-size: 14px;
       line-height: 1.6;
-      color: #e2e8f0;
+      color: var(--text-muted);
       font-style: italic;
       border-left: 3px solid var(--accent);
     }
@@ -657,8 +681,8 @@
       font-size: 15px;
       font-weight: 700;
       color: var(--yellow);
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid rgba(245, 158, 11, 0.3);
+      background: var(--yellow-light);
+      border: 1px solid rgba(180, 83, 9, 0.25);
       padding: 3px 8px;
       border-radius: 6px;
     }
@@ -667,23 +691,29 @@
     input[type="password"] {
       width: 100%;
       padding: 12px 14px;
-      background: rgba(10, 13, 20, 0.75);
+      background: var(--bg-alt);
       border: 1px solid var(--card-border);
       border-radius: 10px;
-      color: #fff;
+      color: var(--text-main);
       font-size: 14px;
       outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     input[type="text"]:focus,
     input[type="password"]:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-glow);
+      box-shadow: 0 0 0 2px var(--accent-mid);
+    }
+
+    input::placeholder {
+      color: var(--text-sub);
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #4f46e5, #6366f1);
-      color: #fff;
+      background: linear-gradient(135deg, #0e0a61, #1d19a3);
+      color: #f8fafc;
       border: none;
       border-radius: 10px;
       padding: 12px 20px;
@@ -691,11 +721,12 @@
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
+      font-family: inherit;
     }
 
     .btn-primary:hover:not(:disabled) {
-      background: linear-gradient(135deg, #4338ca, #4f46e5);
-      box-shadow: 0 0 16px var(--accent-glow);
+      background: linear-gradient(135deg, #1a158a, #2522c2);
+      box-shadow: 0 4px 14px rgba(14, 10, 97, 0.28);
     }
 
     .btn-primary:disabled {
@@ -711,15 +742,34 @@
     }
 
     .alert-box.error {
-      background: rgba(239, 68, 68, 0.15);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.3);
+      background: var(--red-light);
+      color: #991b1b;
+      border: 1px solid rgba(220, 38, 38, 0.25);
     }
 
     .alert-box.success {
-      background: rgba(16, 185, 129, 0.15);
-      color: #6ee7b7;
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      background: var(--green-light);
+      color: #065f46;
+      border: 1px solid rgba(5, 150, 105, 0.25);
+    }
+
+    /* Scrollbar styling for light theme */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-alt);
+      border-radius: 999px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(14, 10, 97, 0.2);
+      border-radius: 999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(14, 10, 97, 0.35);
     }
   </style>
 </head>
@@ -747,7 +797,8 @@
           </svg>
           Enroll New Profile
         </button>
-        <button class="btn-danger-outline" id="open-manage-profiles-btn" title="Manage and remove enrolled biometric profiles">
+        <button class="btn-danger-outline" id="open-manage-profiles-btn"
+          title="Manage and remove enrolled biometric profiles">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <polyline points="3 6 5 6 21 6"></polyline>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -768,9 +819,11 @@
       <div class="alert-banner-icon" id="unauthorized-banner-icon">🚨</div>
       <div style="flex: 1;">
         <strong>Security Notice:</strong>
-        <span id="unauthorized-banner-text">Unauthorized typist detected — typing cadence diverges from all registered biometric profiles.</span>
+        <span id="unauthorized-banner-text">Unauthorized typist detected — typing cadence diverges from all registered
+          biometric profiles.</span>
       </div>
-      <span class="alert-banner-tag" id="unauthorized-banner-timer" style="font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-family: 'JetBrains Mono', monospace;">5s</span>
+      <span class="alert-banner-tag" id="unauthorized-banner-timer"
+        style="font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-family: 'JetBrains Mono', monospace;">5s</span>
     </div>
 
     <!-- MAIN VIEW: PROTECTED WORKSPACE (Zero-Login by Default) -->
@@ -939,12 +992,15 @@
 
       <div class="alert-box" id="profiles-alert"></div>
 
-      <div id="profiles-modal-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 340px; overflow-y: auto; padding-right: 4px;">
+      <div id="profiles-modal-list"
+        style="display: flex; flex-direction: column; gap: 10px; max-height: 340px; overflow-y: auto; padding-right: 4px;">
         <span style="font-size: 12px; color: var(--text-sub);">Loading registered profiles…</span>
       </div>
 
-      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--card-border); padding-top: 14px; margin-top: 6px;">
-        <button class="btn-remove-sm" id="clear-all-profiles-btn" style="background: rgba(239, 68, 68, 0.12); color: #fca5a5; border-color: rgba(239, 68, 68, 0.35); padding: 7px 14px; font-size: 12.5px;">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--card-border); padding-top: 14px; margin-top: 6px;">
+        <button class="btn-remove-sm" id="clear-all-profiles-btn"
+          style="background: rgba(239, 68, 68, 0.12); color: #fca5a5; border-color: rgba(239, 68, 68, 0.35); padding: 7px 14px; font-size: 12.5px;">
           🗑️ Clear All Profiles
         </button>
         <button class="btn-secondary" id="profiles-modal-done-btn" style="padding: 7px 18px; font-size: 13px;">
@@ -1103,7 +1159,7 @@
         }
       }
 
-      window.removeSingleProfile = async function(username) {
+      window.removeSingleProfile = async function (username) {
         if (!confirm(`Are you sure you want to remove the registered profile for '@${username}'?`)) return;
         try {
           const res = await fetch(getApiBase() + `/api/profile/${encodeURIComponent(username)}`, { method: "DELETE" });
@@ -1149,7 +1205,7 @@
             list.forEach(p => dummyScores[p.username] = 0);
             renderProfilesBreakdown(dummyScores);
           }
-        }).catch(() => {});
+        }).catch(() => { });
       }
 
       // ---------------------------------------------------------------------------
