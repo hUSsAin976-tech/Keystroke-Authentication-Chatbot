@@ -54,14 +54,24 @@ def get_user_from_msg(r: dict) -> str:
 
 
 async def send_and_collect(ws, events: list[dict], wait_sec: float = 2.0) -> list[dict]:
-    await ws.send(json.dumps({"events": events}))
     results = []
+    batch_size = 6
+    for i in range(0, len(events), batch_size):
+        chunk = events[i : i + batch_size]
+        await ws.send(json.dumps({"events": chunk}))
+        await asyncio.sleep(0.03)
+        while True:
+            try:
+                msg = await asyncio.wait_for(ws.recv(), timeout=0.03)
+                results.append(json.loads(msg))
+            except (asyncio.TimeoutError, TimeoutError):
+                break
+
     end_time = time.time() + wait_sec
     while time.time() < end_time:
         try:
-            msg = await asyncio.wait_for(ws.recv(), timeout=0.6)
-            data = json.loads(msg)
-            results.append(data)
+            msg = await asyncio.wait_for(ws.recv(), timeout=0.4)
+            results.append(json.loads(msg))
         except (asyncio.TimeoutError, TimeoutError):
             break
     return results

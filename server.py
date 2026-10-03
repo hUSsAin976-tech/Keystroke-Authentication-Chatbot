@@ -33,6 +33,7 @@ from users import (
     delete_all_profiles,
     get_registered_profiles,
     reset_enrollment,
+    append_verified_training_session,
 )
 
 load_dotenv()
@@ -70,6 +71,23 @@ class EnrollSubmitRequest(BaseModel):
     session_index: int
     session_type: str = "normal"
     events: list[dict]
+
+
+class VerifyPredictionRequest(BaseModel):
+    events: list[dict]
+    target_user: str | None = None
+
+
+class TrainingFeedbackRequest(BaseModel):
+    username: str
+    events: list[dict]
+    was_correct: bool = True
+    predicted_user: str | None = None
+    retrain: bool = False
+
+
+class RetrainModelRequest(BaseModel):
+    epochs: int = 30
 
 
 # ---------------------------------------------------------------------------
@@ -370,6 +388,133 @@ async def api_clear_all_profiles():
     removed = delete_all_profiles()
     invalidate_model_cache()
     return {"status": "ok", "removed": removed, "message": "All registered profiles removed."}
+
+
+# ---------------------------------------------------------------------------
+# Interactive Accuracy Training & Calibration Endpoints
+# ---------------------------------------------------------------------------
+
+@app.post("/api/train/verify-prediction")
+async def api_train_verify_prediction(req: VerifyPredictionRequest):
+    """
+    Evaluate live typing events in real time to predict the active typist,
+    detect unauthorized impostors, and compute cadence telemetry.
+    """
+    import numpy as np
+    events = req.events or []
+    if not events:
+        return {
+            "status": "empty",
+            "predicted_user": "unknown",
+            "is_unauthorized": True,
+            "confidence": 0.0,
+            "all_scores": {},
+            "keystroke_count": 0,
+            "telemetry": {"dwell_ms": 0.0, "flight_ms": 0.0, "rhythm_var": 0.0},
+        }
+
+    features = extract_features(events)
+    active = features[np.any(features != 0, axis=1)]
+    kd_count = sum(1 for e in events if e.get("event_type") == "keydown")
+
+    dwells = active[active[:, 0] > 0, 0] if len(active) > 0 else []
+    flights = active[:, 1] if len(active) > 0 else []
+    rhythm_var = float(np.mean(active[:, 5])) if len(active) > 0 else 0.0
+
+    dwell_ms = round(float(np.mean(dwells)) * 1000, 1) if len(dwells) > 0 else 0.0
+    flight_ms = round(float(np.mean(flights)) * 1000, 1) if len(flights) > 0 else 0.0
+
+    prediction = predict_user(features, target_user=req.target_user)
+    pred_user = prediction.get("predicted_user", "unknown")
+    conf = prediction.get("confidence", 0.0)
+    all_scores = prediction.get("all_scores", {})
+    method = prediction.get("method", "lstm")
+
+    is_unauthorized = (pred_user == "unknown" or pred_user not in all_scores)
+
+    return {
+        "status": "ok",
+        "predicted_user": pred_user,
+        "is_unauthorized": is_unauthorized,
+        "confidence": conf,
+        "all_scores": all_scores,
+        "method": method,
+        "keystroke_count": kd_count,
+        "telemetry": {
+            "dwell_ms": dwell_ms,
+            "flight_ms": flight_ms,
+            "rhythm_var": round(rhythm_var, 4),
+        },
+    }
+
+
+@app.post("/api/train/feedback")
+async def api_train_feedback(req: TrainingFeedbackRequest):
+    """
+    Submit human verification / ground-truth feedback for a typing window.
+    Updates the user's biometric pattern dataset, re-learns statistical bounds,
+    and optionally retrains the multi-user LSTM model.
+    """
+    username = req.username.strip().lower()
+    if not username:
+        raise HTTPException(status_code=400, detail="Target username is required.")
+
+    if not req.events or len(req.events) < 4:
+        raise HTTPException(status_code=400, detail="Insufficient keystroke events for training.")
+
+    # 1. Store the verified keystrokes in user's profile database
+    count = append_verified_training_session(
+        username=username,
+        events=req.events,
+        session_type="accuracy_calibration",
+    )
+
+    # 2. Update statistical profile immediately
+    sessions = get_enrollment_sessions(username)
+    profile = learn_user_profile(username, sessions)
+    invalidate_model_cache()
+
+    # 3. Retrain multi-user LSTM in background if requested or after sufficient new batches
+    if req.retrain:
+        _trigger_background_training(epochs=25)
+
+    return {
+        "status": "ok",
+        "message": f"Biometric pattern learned and calibrated for @{username}.",
+        "username": username,
+        "sessions_count": count,
+        "profile": {
+            "samples_count": profile.get("samples_count", 0),
+            "dwell_mean_ms": round(float(profile.get("dwell_mean", 0.0)) * 1000, 1),
+            "flight_mean_ms": round(float(profile.get("flight_mean", 0.0)) * 1000, 1),
+        },
+        "retraining_triggered": req.retrain,
+    }
+
+
+@app.post("/api/train/retrain")
+async def api_train_retrain(req: RetrainModelRequest):
+    """Trigger background model retraining across all verified profiles."""
+    epochs = max(5, min(req.epochs, 100))
+    _trigger_background_training(epochs=epochs)
+    return {
+        "status": "ok",
+        "message": f"Model retraining initiated for {epochs} epochs with speed-invariance augmentation.",
+    }
+
+
+@app.get("/api/train/stats")
+async def api_train_stats():
+    """Return summary training stats for all registered users."""
+    profiles = get_registered_profiles()
+    from model import load_model
+    model, meta = load_model()
+    return {
+        "status": "ok",
+        "profiles": profiles,
+        "model_loaded": model is not None,
+        "enrolled_in_model": meta.get("enrolled_users", []) if meta else [],
+    }
 
 
 

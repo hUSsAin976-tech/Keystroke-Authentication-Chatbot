@@ -119,26 +119,128 @@
       gap: 12px;
     }
 
-    .btn-action {
-      background: linear-gradient(135deg, #0e0a61, #1d19a3);
-      color: #f8fafc;
-      border: 1px solid rgba(14, 10, 97, 0.3);
-      border-radius: 10px;
-      padding: 9px 16px;
-      font-size: 13px;
-      font-weight: 600;
+    /* Modern Icon-Only Navbar Buttons with Expand & Tooltip on Hover */
+    .nav-icon-btn {
+      position: relative;
+      border-radius: 12px;
+      height: 40px;
+      padding: 0 11px;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 8px rgba(14, 10, 97, 0.22);
+      justify-content: center;
+      gap: 0px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 2px 8px rgba(14, 10, 97, 0.20);
+      overflow: visible;
+      white-space: nowrap;
+      border: 1px solid transparent;
     }
 
-    .btn-action:hover {
-      background: linear-gradient(135deg, #1a158a, #2522c2);
+    .nav-icon-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+
+    .nav-icon-btn:hover svg {
+      transform: scale(1.1);
+    }
+
+    .nav-icon-btn .btn-text {
+      max-width: 0;
+      opacity: 0;
+      margin-left: 0;
+      overflow: hidden;
+      transition: max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, margin-left 0.25s ease;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-icon-btn:hover {
+      padding: 0 16px;
       transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(14, 10, 97, 0.30);
+    }
+
+    .nav-icon-btn:hover .btn-text {
+      max-width: 220px;
+      opacity: 1;
+      margin-left: 8px;
+    }
+
+    /* Tooltip on Hover */
+    .nav-tooltip {
+      position: absolute;
+      top: calc(100% + 9px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-6px);
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      z-index: 100;
+    }
+
+    .nav-tooltip::before {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-bottom-color: #0f172a;
+    }
+
+    .nav-icon-btn:hover .nav-tooltip,
+    .pulse-badge:hover .nav-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Specific Button Color Themes */
+    .nav-icon-btn.btn-enroll {
+      background: linear-gradient(135deg, #0e0a61, #1d19a3);
+      color: #f8fafc;
+      border-color: rgba(14, 10, 97, 0.35);
+    }
+    .nav-icon-btn.btn-enroll:hover {
+      background: linear-gradient(135deg, #1a158a, #2522c2);
+      box-shadow: 0 4px 14px rgba(14, 10, 97, 0.35);
+    }
+
+    .nav-icon-btn.btn-train {
+      background: linear-gradient(135deg, #059669, #0d9488);
+      color: #ffffff;
+      border-color: rgba(5, 150, 105, 0.45);
+      box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
+    }
+    .nav-icon-btn.btn-train:hover {
+      background: linear-gradient(135deg, #047857, #0f766e);
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.38);
+    }
+
+    .nav-icon-btn.btn-remove {
+      background: rgba(220, 38, 38, 0.08);
+      color: #dc2626;
+      border-color: rgba(220, 38, 38, 0.30);
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.12);
+    }
+    .nav-icon-btn.btn-remove:hover {
+      background: rgba(220, 38, 38, 0.16);
+      border-color: rgba(220, 38, 38, 0.50);
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.25);
     }
 
     .btn-secondary {
@@ -158,41 +260,67 @@
       border-color: var(--card-border-hover);
     }
 
+    /* Glowing Connectivity Badge */
     .pulse-badge {
+      position: relative;
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
       background: var(--bg-alt);
       border: 1px solid var(--card-border);
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-muted);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(14, 10, 97, 0.05);
+      overflow: visible;
+    }
+
+    .pulse-badge:hover {
+      background: #e2e6f5;
+      border-color: var(--card-border-hover);
+      transform: translateY(-1px);
     }
 
     .pulse-dot {
-      width: 8px;
-      height: 8px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       background: var(--green);
-      animation: pulse 2s infinite;
+      box-shadow: 0 0 12px var(--green), 0 0 4px var(--green);
+      animation: pulseGlow 1.8s infinite ease-in-out;
+      transition: all 0.3s ease;
     }
 
-    @keyframes pulse {
-      0% {
-        transform: scale(0.95);
-        opacity: 0.8;
-      }
+    .pulse-dot.connected {
+      background: #059669;
+      box-shadow: 0 0 14px #059669, 0 0 5px #10b981;
+    }
 
+    .pulse-dot.connecting,
+    .pulse-dot.reconnecting {
+      background: #d97706;
+      box-shadow: 0 0 14px #d97706, 0 0 5px #f59e0b;
+    }
+
+    .pulse-dot.disconnected {
+      background: #dc2626;
+      box-shadow: 0 0 14px #dc2626, 0 0 5px #ef4444;
+    }
+
+    @keyframes pulseGlow {
+      0% {
+        transform: scale(0.9);
+        opacity: 0.85;
+      }
       50% {
-        transform: scale(1.25);
+        transform: scale(1.2);
         opacity: 1;
       }
-
       100% {
-        transform: scale(0.95);
-        opacity: 0.8;
+        transform: scale(0.9);
+        opacity: 0.85;
       }
     }
 
@@ -771,6 +899,134 @@
     ::-webkit-scrollbar-thumb:hover {
       background: rgba(14, 10, 97, 0.35);
     }
+
+    /* Accuracy Training Studio Styles */
+    .train-modal-card {
+      width: 100%;
+      max-width: 840px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border-hover);
+      border-radius: 20px;
+      padding: 26px 28px;
+      box-shadow: 0 10px 48px rgba(14, 10, 97, 0.22);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .train-telemetry-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .train-chip {
+      background: var(--bg-alt);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .train-chip-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .train-chip-val {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .train-predict-card {
+      border-radius: 14px;
+      padding: 16px 18px;
+      border: 1px solid var(--card-border);
+      background: #f8fafc;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .train-predict-card.authorized {
+      background: rgba(5, 150, 105, 0.06);
+      border-color: rgba(5, 150, 105, 0.30);
+    }
+
+    .train-predict-card.unauthorized {
+      background: rgba(220, 38, 38, 0.06);
+      border-color: rgba(220, 38, 38, 0.30);
+    }
+
+    .train-feedback-btn-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-feedback-correct {
+      background: linear-gradient(135deg, #059669, #047857);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-feedback-correct:hover:not(:disabled) {
+      background: linear-gradient(135deg, #047857, #065f46);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(5, 150, 105, 0.25);
+    }
+
+    .btn-feedback-wrong {
+      background: rgba(220, 38, 38, 0.08);
+      color: #dc2626;
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-feedback-wrong:hover:not(:disabled) {
+      background: rgba(220, 38, 38, 0.16);
+    }
+
+    .train-select {
+      padding: 9px 12px;
+      background: var(--bg-alt);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      font-family: inherit;
+    }
   </style>
 </head>
 
@@ -790,26 +1046,45 @@
         </div>
       </div>
       <div class="header-actions">
-        <button class="btn-action" id="open-enroll-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
+        <!-- Enroll Profile Icon Button -->
+        <button class="nav-icon-btn btn-enroll" id="open-enroll-btn" aria-label="Enroll New Profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <line x1="20" y1="8" x2="20" y2="14"></line>
+            <line x1="23" y1="11" x2="17" y2="11"></line>
           </svg>
-          Enroll New Profile
+          <span class="btn-text">Enroll Profile</span>
+          <span class="nav-tooltip">Enroll New Biometric Profile (5 Sessions)</span>
         </button>
-        <button class="btn-danger-outline" id="open-manage-profiles-btn"
-          title="Manage and remove enrolled biometric profiles">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+
+        <!-- Train Accuracy Icon Button -->
+        <button class="nav-icon-btn btn-train" id="open-train-accuracy-btn" aria-label="Train to Improve Accuracy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="6"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+          </svg>
+          <span class="btn-text">Train Accuracy</span>
+          <span class="nav-tooltip">Train to Improve Accuracy (Live Freehand Calibration)</span>
+        </button>
+
+        <!-- Remove Profiles Icon Button -->
+        <button class="nav-icon-btn btn-remove" id="open-manage-profiles-btn" aria-label="Remove Profiles">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <polyline points="3 6 5 6 21 6"></polyline>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             <line x1="10" y1="11" x2="10" y2="17"></line>
             <line x1="14" y1="11" x2="14" y2="17"></line>
           </svg>
-          Remove Profiles
+          <span class="btn-text">Remove Profiles</span>
+          <span class="nav-tooltip">Manage & Remove Enrolled Profiles</span>
         </button>
-        <div class="pulse-badge">
-          <div class="pulse-dot" id="socket-dot"></div>
-          <span id="socket-status-text">Connected</span>
+
+        <!-- Glowing Connectivity Badge (Green / Orange / Red) with Hover Status -->
+        <div class="pulse-badge" id="socket-status-badge" aria-label="Server Connectivity Status">
+          <div class="pulse-dot connected" id="socket-dot"></div>
+          <span class="nav-tooltip" id="socket-status-tooltip">Connected: AI Keystroke Stream Active (127.0.0.1:8000)</span>
         </div>
       </div>
     </header>
@@ -1007,6 +1282,139 @@
           Close
         </button>
       </div>
+  <!-- ACCURACY IMPROVEMENT & PATTERN LEARNING MODAL -->
+  <div class="modal-overlay" id="train-modal" style="display: none;">
+    <div class="train-modal-card">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="shield-icon" style="background: linear-gradient(135deg, #059669, #0d9488); width: 40px; height: 40px; border-radius: 12px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="6"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+          </div>
+          <div>
+            <h2 style="font-size: 18px; margin: 0; color: var(--text-main);">Train to Improve Accuracy</h2>
+            <div class="sub">Continuous freehand typing prediction + real-time 1-second verification & model pattern learning</div>
+          </div>
+        </div>
+        <button class="modal-close" id="train-close-btn">&times;</button>
+      </div>
+
+      <div class="alert-box" id="train-alert"></div>
+
+      <!-- Typist Persona & Feedback Mode Configuration -->
+      <div style="display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; background: var(--bg-alt); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--card-border);">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <label style="font-size: 12.5px; font-weight: 700; color: var(--text-muted);">
+            I am typing as:
+          </label>
+          <select id="train-persona-select" class="train-select">
+            <option value="auto">👤 Auto-Detect Person</option>
+            <!-- Dynamically populated enrolled users -->
+            <option value="unauthorized">🚨 Unauthorized / Stranger</option>
+          </select>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 12px; font-weight: 600; color: var(--text-sub); display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="checkbox" id="train-auto-verify-chk" style="cursor: pointer;" checked />
+            Auto-Verify Matching Persona
+          </label>
+        </div>
+      </div>
+
+      <!-- Real-time Cadence Telemetry Chips -->
+      <div class="train-telemetry-row">
+        <div class="train-chip">
+          <span class="train-chip-label">Dwell Time</span>
+          <span class="train-chip-val" id="train-dwell-val">—</span>
+        </div>
+        <div class="train-chip">
+          <span class="train-chip-label">Flight Time</span>
+          <span class="train-chip-val" id="train-flight-val">—</span>
+        </div>
+        <div class="train-chip">
+          <span class="train-chip-label">Rhythm Variance</span>
+          <span class="train-chip-val" id="train-rhythm-val">—</span>
+        </div>
+        <div class="train-chip">
+          <span class="train-chip-label">Live Session Accuracy</span>
+          <span class="train-chip-val" id="train-session-acc" style="color: var(--green);">100%</span>
+        </div>
+      </div>
+
+      <!-- Freehand Typing Sandbox -->
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label style="font-size: 12.5px; font-weight: 700; color: var(--text-muted);">
+            Freehand Typing Area (Write anything freely to test & train):
+          </label>
+          <span style="font-size: 12px; color: var(--text-sub);" id="train-char-counter">0 keystrokes recorded</span>
+        </div>
+        <textarea id="train-typing-input" style="min-height: 110px;"
+          placeholder="Type anything freely here (random sentences, articles, thoughts, or code)... The AI continuously evaluates your typing cadence every second, predicting who is writing among enrolled users or detecting if an unauthorized person is writing. You can verify or correct the prediction to teach the model your exact rhythm."></textarea>
+      </div>
+
+      <!-- Live 1-Second Prediction & Verification Card -->
+      <div class="train-predict-card" id="train-prediction-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <span style="font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase;">Real-Time Cadence Prediction (Evaluated Every Second)</span>
+            <div style="font-size: 18px; font-weight: 800; margin-top: 2px; display: flex; align-items: center; gap: 10px;">
+              <span id="train-pred-user-badge" style="color: var(--text-main);">Waiting for typing...</span>
+              <span class="session-type-badge" id="train-pred-conf-badge" style="display: none;">0% Match</span>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 11px; color: var(--text-sub); display: block;">Decision Engine</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--accent);" id="train-pred-method">Biometric LSTM</span>
+          </div>
+        </div>
+
+        <!-- Enrolled Users Score Distribution -->
+        <div style="display: flex; flex-direction: column; gap: 6px;" id="train-scores-container">
+          <span style="font-size: 12px; color: var(--text-sub);">Start typing above to see live multi-user probability distribution…</span>
+        </div>
+
+        <!-- Verification & Feedback Action Buttons -->
+        <div style="border-top: 1px solid var(--card-border); padding-top: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-size: 12.5px; font-weight: 700; color: var(--text-muted);">Check Prediction:</span>
+            <button class="btn-feedback-correct" id="train-feedback-correct-btn" disabled>
+              ✓ Correct! (Verify as @predicted)
+            </button>
+            <button class="btn-feedback-wrong" id="train-feedback-wrong-btn" disabled>
+              ✗ Incorrect (Wrong Person)
+            </button>
+          </div>
+          <div id="train-correction-box" style="display: none; align-items: center; gap: 8px;">
+            <span style="font-size: 12px; color: var(--text-muted);">Actually:</span>
+            <select id="train-correction-user-select" class="train-select" style="padding: 6px 10px; font-size: 12px;">
+              <!-- Enrolled options + unauthorized -->
+            </select>
+            <button class="btn-primary" id="train-submit-correction-btn" style="padding: 6px 12px; font-size: 12px;">
+              Submit Correction
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Retraining and Calibration Footer -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--card-border); padding-top: 14px; margin-top: 4px; flex-wrap: wrap; gap: 10px;">
+        <div style="font-size: 12.5px; color: var(--text-sub);">
+          Verified Batches: <strong id="train-verified-count" style="color: var(--text-main);">0</strong> &bull;
+          Pattern Samples Learned: <strong id="train-samples-count" style="color: var(--accent);">0</strong>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button class="btn-primary" id="train-retrain-model-btn" style="background: linear-gradient(135deg, #059669, #0d9488); display: flex; align-items: center; gap: 6px;">
+            ⚡ Retrain & Calibrate Model Now
+          </button>
+          <button class="btn-secondary" id="train-done-btn">
+            Done
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1087,6 +1495,7 @@
       const activityLogEl = document.getElementById("activity-log-entries");
       const socketDot = document.getElementById("socket-dot");
       const socketStatusText = document.getElementById("socket-status-text");
+      const socketStatusTooltip = document.getElementById("socket-status-tooltip");
 
       // Manage / Remove Profiles Modal Elements
       const openManageProfilesBtn = document.getElementById("open-manage-profiles-btn");
@@ -1207,6 +1616,338 @@
           }
         }).catch(() => { });
       }
+
+      // ---------------------------------------------------------------------------
+      // Accuracy Training & Pattern Learning Studio Handlers
+      // ---------------------------------------------------------------------------
+      const openTrainAccuracyBtn = document.getElementById("open-train-accuracy-btn");
+      const trainModal = document.getElementById("train-modal");
+      const trainCloseBtn = document.getElementById("train-close-btn");
+      const trainDoneBtn = document.getElementById("train-done-btn");
+      const trainAlert = document.getElementById("train-alert");
+      const trainPersonaSelect = document.getElementById("train-persona-select");
+      const trainAutoVerifyChk = document.getElementById("train-auto-verify-chk");
+      const trainDwellVal = document.getElementById("train-dwell-val");
+      const trainFlightVal = document.getElementById("train-flight-val");
+      const trainRhythmVal = document.getElementById("train-rhythm-val");
+      const trainSessionAcc = document.getElementById("train-session-acc");
+      const trainCharCounter = document.getElementById("train-char-counter");
+      const trainTypingInput = document.getElementById("train-typing-input");
+      const trainPredictionCard = document.getElementById("train-prediction-card");
+      const trainPredUserBadge = document.getElementById("train-pred-user-badge");
+      const trainPredConfBadge = document.getElementById("train-pred-conf-badge");
+      const trainPredMethod = document.getElementById("train-pred-method");
+      const trainScoresContainer = document.getElementById("train-scores-container");
+      const trainFeedbackCorrectBtn = document.getElementById("train-feedback-correct-btn");
+      const trainFeedbackWrongBtn = document.getElementById("train-feedback-wrong-btn");
+      const trainCorrectionBox = document.getElementById("train-correction-box");
+      const trainCorrectionUserSelect = document.getElementById("train-correction-user-select");
+      const trainSubmitCorrectionBtn = document.getElementById("train-submit-correction-btn");
+      const trainVerifiedCount = document.getElementById("train-verified-count");
+      const trainSamplesCount = document.getElementById("train-samples-count");
+      const trainRetrainModelBtn = document.getElementById("train-retrain-model-btn");
+
+      let trainEventsBuffer = [];
+      let trainRecentEvents = [];
+      let trainTickerInterval = null;
+      let trainLastPrediction = null;
+      let trainSessionStats = { totalChecks: 0, correctChecks: 0, verifiedBatches: 0, samplesAdded: 0 };
+      let trainRegisteredProfiles = [];
+      let trainEvaluating = false;
+
+      if (openTrainAccuracyBtn) {
+        openTrainAccuracyBtn.addEventListener("click", () => {
+          trainModal.style.display = "flex";
+          if (trainAlert) trainAlert.style.display = "none";
+          trainTypingInput.value = "";
+          trainEventsBuffer = [];
+          trainRecentEvents = [];
+          trainCharCounter.textContent = "0 keystrokes recorded";
+          loadTrainPersonas();
+          startTrainTicker();
+          trainTypingInput.focus();
+        });
+      }
+
+      if (trainCloseBtn) {
+        trainCloseBtn.addEventListener("click", closeTrainModal);
+      }
+      if (trainDoneBtn) {
+        trainDoneBtn.addEventListener("click", closeTrainModal);
+      }
+
+      function closeTrainModal() {
+        if (trainTickerInterval) {
+          clearInterval(trainTickerInterval);
+          trainTickerInterval = null;
+        }
+        trainModal.style.display = "none";
+        refreshSidebarProfiles();
+      }
+
+      async function loadTrainPersonas() {
+        try {
+          const res = await fetch(getApiBase() + "/api/profiles");
+          const data = await res.json();
+          trainRegisteredProfiles = data.profiles || [];
+
+          // Populate Persona Select & Correction Select
+          trainPersonaSelect.innerHTML = '<option value="auto">👤 Auto-Detect Person</option>';
+          trainCorrectionUserSelect.innerHTML = '';
+
+          trainRegisteredProfiles.forEach(p => {
+            const opt1 = document.createElement("option");
+            opt1.value = p.username;
+            opt1.textContent = `@${p.username} (${p.sessions_count} sessions)`;
+            trainPersonaSelect.appendChild(opt1);
+
+            const opt2 = document.createElement("option");
+            opt2.value = p.username;
+            opt2.textContent = `@${p.username}`;
+            trainCorrectionUserSelect.appendChild(opt2);
+          });
+
+          const unauthOpt1 = document.createElement("option");
+          unauthOpt1.value = "unauthorized";
+          unauthOpt1.textContent = "🚨 Unauthorized / Stranger (Negative Calibration)";
+          trainPersonaSelect.appendChild(unauthOpt1);
+
+          const unauthOpt2 = document.createElement("option");
+          unauthOpt2.value = "unauthorized";
+          unauthOpt2.textContent = "🚨 Unauthorized / Stranger";
+          trainCorrectionUserSelect.appendChild(unauthOpt2);
+        } catch (e) {
+          console.warn("Could not load profiles for training:", e);
+        }
+      }
+
+      function startTrainTicker() {
+        if (trainTickerInterval) clearInterval(trainTickerInterval);
+        trainTickerInterval = setInterval(() => {
+          evaluateTrainWindow();
+        }, 1000); // Live prediction on every second
+      }
+
+      trainTypingInput.addEventListener("keydown", (e) => {
+        const now = performance.now() + performance.timeOrigin;
+        trainEventsBuffer.push({ key: e.key, event_type: "keydown", timestamp: now });
+        trainRecentEvents.push({ key: e.key, event_type: "keydown", timestamp: now });
+        trainCharCounter.textContent = `${trainEventsBuffer.filter(x => x.event_type === 'keydown').length} keystrokes recorded`;
+      });
+
+      trainTypingInput.addEventListener("keyup", (e) => {
+        const now = performance.now() + performance.timeOrigin;
+        trainEventsBuffer.push({ key: e.key, event_type: "keyup", timestamp: now });
+        trainRecentEvents.push({ key: e.key, event_type: "keyup", timestamp: now });
+      });
+
+      async function evaluateTrainWindow() {
+        if (trainEvaluating) return;
+        const kdEvents = trainEventsBuffer.filter(e => e.event_type === "keydown");
+        if (kdEvents.length < 6) return; // Need at least basic typing window
+
+        trainEvaluating = true;
+        try {
+          // Send most recent keystrokes
+          const windowSlice = trainEventsBuffer.slice(-70);
+          const targetPersona = trainPersonaSelect.value !== "auto" && trainPersonaSelect.value !== "unauthorized" ? trainPersonaSelect.value : null;
+
+          const res = await fetch(getApiBase() + "/api/train/verify-prediction", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              events: windowSlice,
+              target_user: targetPersona
+            })
+          });
+
+          if (!res.ok) return;
+          const data = await res.json();
+          trainLastPrediction = data;
+
+          // Update Telemetry
+          if (data.telemetry) {
+            trainDwellVal.textContent = `${data.telemetry.dwell_ms} ms`;
+            trainFlightVal.textContent = `${data.telemetry.flight_ms} ms`;
+            trainRhythmVal.textContent = data.telemetry.rhythm_var;
+          }
+
+          // Update Prediction Card UI
+          const isUnauth = data.is_unauthorized || data.predicted_user === "unknown";
+          const confPct = Math.round((data.confidence || 0) * 100);
+
+          if (isUnauth) {
+            trainPredictionCard.className = "train-predict-card unauthorized";
+            trainPredUserBadge.textContent = "🚨 Unauthorized / Unknown Typist";
+            trainPredUserBadge.style.color = "var(--red)";
+            trainPredConfBadge.textContent = "No Match";
+            trainPredConfBadge.style.display = "inline-block";
+            trainPredConfBadge.style.background = "var(--red-light)";
+            trainPredConfBadge.style.color = "var(--red)";
+          } else {
+            trainPredictionCard.className = "train-predict-card authorized";
+            trainPredUserBadge.textContent = `@${data.predicted_user}`;
+            trainPredUserBadge.style.color = "var(--green)";
+            trainPredConfBadge.textContent = `${confPct}% Match`;
+            trainPredConfBadge.style.display = "inline-block";
+            trainPredConfBadge.style.background = "var(--green-light)";
+            trainPredConfBadge.style.color = "var(--green)";
+          }
+
+          trainPredMethod.textContent = data.method === "lstm" ? "Multi-User LSTM" : "Profile Heuristic";
+
+          // Render Scores Breakdown
+          renderTrainScoreBars(data.all_scores || {});
+
+          // Enable Check Buttons
+          trainFeedbackCorrectBtn.disabled = false;
+          trainFeedbackWrongBtn.disabled = false;
+          trainFeedbackCorrectBtn.textContent = `✓ Correct! (Verify as ${isUnauth ? 'Unauthorized' : '@' + data.predicted_user})`;
+
+          // Auto-verify if persona explicitly selected and matches
+          const selectedPersona = trainPersonaSelect.value;
+          if (trainAutoVerifyChk.checked && selectedPersona !== "auto" && trainEventsBuffer.length >= 16) {
+            const matchesExpected = (selectedPersona === "unauthorized" && isUnauth) || (selectedPersona === data.predicted_user);
+            if (matchesExpected && selectedPersona !== "unauthorized") {
+              // Send continuous pattern learning
+              sendTrainingFeedback(selectedPersona, true, false);
+            }
+          }
+        } catch (e) {
+          console.warn("Error evaluating train window:", e);
+        } finally {
+          trainEvaluating = false;
+        }
+      }
+
+      function renderTrainScoreBars(allScores) {
+        trainScoresContainer.innerHTML = "";
+        const entries = Object.entries(allScores);
+        if (entries.length === 0) {
+          trainScoresContainer.innerHTML = '<span style="font-size: 12px; color: var(--text-sub);">Analyzing keystroke window…</span>';
+          return;
+        }
+
+        entries.forEach(([user, score]) => {
+          const pct = Math.max(0, Math.min(100, Math.round(score * 100)));
+          const row = document.createElement("div");
+          row.style.cssText = "display: flex; flex-direction: column; gap: 2px;";
+          row.innerHTML = `
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+              <span>@${user}</span>
+              <span style="font-family: 'JetBrains Mono', monospace;">${pct}%</span>
+            </div>
+            <div style="height: 6px; background: rgba(14, 10, 97, 0.08); border-radius: 999px; overflow: hidden;">
+              <div style="height: 100%; width: ${pct}%; background: ${pct >= 65 ? 'var(--green)' : pct >= 35 ? 'var(--yellow)' : '#94a3b8'}; transition: width 0.3s ease;"></div>
+            </div>
+          `;
+          trainScoresContainer.appendChild(row);
+        });
+      }
+
+      trainFeedbackCorrectBtn.addEventListener("click", () => {
+        if (!trainLastPrediction) return;
+        const predUser = trainLastPrediction.predicted_user;
+        const isUnauth = trainLastPrediction.is_unauthorized || predUser === "unknown";
+
+        if (isUnauth) {
+          showAlert(trainAlert, "✓ Correctly identified as unauthorized/stranger typist. Security boundary verified.", "success");
+          trainSessionStats.correctChecks++;
+          trainSessionStats.totalChecks++;
+          updateTrainStatsUI();
+          return;
+        }
+
+        sendTrainingFeedback(predUser, true, true);
+      });
+
+      trainFeedbackWrongBtn.addEventListener("click", () => {
+        trainCorrectionBox.style.display = "flex";
+      });
+
+      trainSubmitCorrectionBtn.addEventListener("click", () => {
+        const correctUser = trainCorrectionUserSelect.value;
+        if (!correctUser) return;
+        trainCorrectionBox.style.display = "none";
+
+        if (correctUser === "unauthorized") {
+          showAlert(trainAlert, "Recorded: active typist was unauthorized stranger. False positive noted.", "success");
+          trainSessionStats.totalChecks++;
+          updateTrainStatsUI();
+          return;
+        }
+
+        sendTrainingFeedback(correctUser, false, true);
+      });
+
+      async function sendTrainingFeedback(username, wasCorrect, showToast) {
+        if (!trainEventsBuffer || trainEventsBuffer.length < 6) return;
+        try {
+          const eventsToSend = trainEventsBuffer.slice(-80);
+          const res = await fetch(getApiBase() + "/api/train/feedback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: username,
+              events: eventsToSend,
+              was_correct: wasCorrect,
+              predicted_user: trainLastPrediction ? trainLastPrediction.predicted_user : null,
+              retrain: false
+            })
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            trainSessionStats.totalChecks++;
+            if (wasCorrect) trainSessionStats.correctChecks++;
+            trainSessionStats.verifiedBatches++;
+            trainSessionStats.samplesAdded += eventsToSend.filter(e => e.event_type === "keydown").length;
+            updateTrainStatsUI();
+
+            if (showToast) {
+              showAlert(trainAlert, `✅ Pattern learned for @${username}! Active profile calibrated (${data.sessions_count} total sessions).`, "success");
+            }
+          } else {
+            if (showToast) showAlert(trainAlert, data.detail || "Feedback submission failed.", "error");
+          }
+        } catch (err) {
+          console.warn("Feedback network error:", err);
+        }
+      }
+
+      function updateTrainStatsUI() {
+        trainVerifiedCount.textContent = String(trainSessionStats.verifiedBatches);
+        trainSamplesCount.textContent = String(trainSessionStats.samplesAdded);
+        const acc = trainSessionStats.totalChecks > 0
+          ? Math.round((trainSessionStats.correctChecks / trainSessionStats.totalChecks) * 100)
+          : 100;
+        trainSessionAcc.textContent = `${acc}%`;
+      }
+
+      trainRetrainModelBtn.addEventListener("click", async () => {
+        trainRetrainModelBtn.disabled = true;
+        trainRetrainModelBtn.textContent = "⚡ Retraining Neural Model...";
+        try {
+          const res = await fetch(getApiBase() + "/api/train/retrain", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ epochs: 30 })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showAlert(trainAlert, "🎯 " + data.message + " Updated weights are now active!", "success");
+            addLogEntry("Neural keystroke model retrained with updated patterns across all profiles", "verify", Date.now() / 1000);
+            refreshSidebarProfiles();
+          } else {
+            showAlert(trainAlert, data.detail || "Retraining failed.", "error");
+          }
+        } catch (e) {
+          showAlert(trainAlert, "Retrain network error: " + e.message, "error");
+        } finally {
+          trainRetrainModelBtn.disabled = false;
+          trainRetrainModelBtn.textContent = "⚡ Retrain & Calibrate Model Now";
+        }
+      });
 
       // ---------------------------------------------------------------------------
       // Enrollment Wizard Handlers
@@ -1671,18 +2412,33 @@
         return `${proto}//${host}/ws/typing`;
       }
 
+      function updateSocketStatus(status) {
+        if (!socketDot) return;
+        if (status === "connected") {
+          socketDot.className = "pulse-dot connected";
+          if (socketStatusTooltip) socketStatusTooltip.textContent = "Connected: AI Keystroke Stream Active (127.0.0.1:8000)";
+          workspaceStatus.textContent = "AI continuous keystroke authentication active — start typing freely.";
+        } else if (status === "connecting" || status === "reconnecting") {
+          socketDot.className = "pulse-dot reconnecting";
+          if (socketStatusTooltip) socketStatusTooltip.textContent = "Reconnecting to AI Biometric Server…";
+          workspaceStatus.textContent = "Reconnecting to biometric server...";
+        } else {
+          socketDot.className = "pulse-dot disconnected";
+          if (socketStatusTooltip) socketStatusTooltip.textContent = "Disconnected: Server offline (Run uvicorn server:app)";
+          workspaceStatus.textContent = "Biometric server disconnected. Reconnecting in background...";
+        }
+      }
+
       function connectSocket() {
         if (socket) {
           try { socket.close(); } catch (e) { }
         }
 
+        updateSocketStatus("connecting");
         socket = new WebSocket(wsUrl());
 
         socket.onopen = () => {
-          socketDot.style.background = "var(--green)";
-          socketDot.style.boxShadow = "0 0 10px var(--green)";
-          socketStatusText.textContent = "Connected";
-          workspaceStatus.textContent = "AI continuous keystroke authentication active — start typing freely.";
+          updateSocketStatus("connected");
         };
 
         socket.onmessage = (event) => {
@@ -1691,10 +2447,12 @@
           handleServerMessage(payload);
         };
 
+        socket.onerror = () => {
+          updateSocketStatus("disconnected");
+        };
+
         socket.onclose = () => {
-          socketDot.style.background = "var(--yellow)";
-          socketDot.style.boxShadow = "0 0 10px var(--yellow)";
-          socketStatusText.textContent = "Reconnecting…";
+          updateSocketStatus("reconnecting");
           setTimeout(connectSocket, 2500);
         };
       }

@@ -271,6 +271,49 @@ def get_user_scaler(username: str) -> dict[str, Any] | None:
         return user.get("scaler")
 
 
+def append_verified_training_session(
+    username: str,
+    events: list[dict],
+    session_type: str = "accuracy_training",
+) -> int:
+    """
+    Append a verified/corrected typing session to the user's training dataset
+    to improve model accuracy and pattern learning for that specific person.
+    """
+    username = username.strip().lower()
+    if not username or not events:
+        return 0
+
+    with _DB_LOCK:
+        db = _load_db()
+        user = db.get(username)
+        if not user:
+            hashed, salt = _hash_password("profile_enrollment_auto_pass")
+            user = {
+                "username": username,
+                "password_hash": hashed,
+                "salt": salt,
+                "enrolled": True,
+                "enrollment_sessions": [],
+                "profile": None,
+                "scaler": None,
+            }
+            db[username] = user
+        else:
+            user["enrolled"] = True
+
+        sessions = user.setdefault("enrollment_sessions", [])
+        next_index = len(sessions) + 1
+        sessions.append({
+            "session_index": next_index,
+            "session_type": session_type,
+            "events_count": len(events),
+            "events": events,
+        })
+        _save_db(db)
+        return len(sessions)
+
+
 def get_all_training_data() -> dict[str, list[dict[str, Any]]]:
     """All enrolled users with full session metadata for train.py."""
     with _DB_LOCK:
